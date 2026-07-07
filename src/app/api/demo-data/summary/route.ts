@@ -1,4 +1,4 @@
-import { apiError, apiOk } from "@/lib/api/responses";
+import { apiError, apiInternalError, apiOk } from "@/lib/api/responses";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -49,10 +49,6 @@ export async function GET() {
 
     console.error("Failed to read OpsPilot demo data summary.", error);
 
-    return apiError(
-      "INTERNAL_ERROR",
-      "Unable to read OpsPilot demo data summary.",
-      { status: 500 },
-    );
+    return apiInternalError("Unable to read OpsPilot demo data summary.");
   }
 }

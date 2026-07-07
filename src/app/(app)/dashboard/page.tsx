@@ -61,7 +61,7 @@ export default function DashboardPage() {
               >
                 <span className="text-sm font-medium">{queue}</span>
                 <span className="rounded-lg bg-[#eef6f4] px-2 py-1 text-xs font-medium text-[#0f766e]">
-                  Ready
+                  Scaffolded
                 </span>
               </div>
             ))}

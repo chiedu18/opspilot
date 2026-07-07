@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { signInAsDemoUser } from "./helpers/auth";
+
 const moduleRoutes = [
   { path: "/customers", heading: "Customers" },
   { path: "/orders", heading: "Orders" },
@@ -19,6 +21,8 @@ async function expectNoPageWideOverflow(page: import("@playwright/test").Page) {
 
 test.describe("scaffold routes", () => {
   test("redirects the root route to the dashboard", async ({ page }) => {
+    await signInAsDemoUser(page);
+
     await page.goto("/");
 
     await expect(page).toHaveURL(/\/dashboard$/);
@@ -31,6 +35,8 @@ test.describe("scaffold routes", () => {
 
   for (const route of moduleRoutes) {
     test(`renders ${route.path} as an empty scaffold`, async ({ page }) => {
+      await signInAsDemoUser(page);
+
       await page.goto(route.path);
 
       await expect(
@@ -43,6 +49,7 @@ test.describe("scaffold routes", () => {
   test("keeps dashboard and module routes within the mobile viewport", async ({
     page,
   }) => {
+    await signInAsDemoUser(page);
     await page.setViewportSize({ width: 390, height: 844 });
 
     await page.goto("/dashboard");

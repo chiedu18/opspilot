@@ -1,9 +1,19 @@
+import { redirect } from "next/navigation";
+
+import { getDemoSession } from "@/lib/auth/demo-session";
+
 import { AppShell } from "./_components/app-shell";
 
-export default function OperationsLayout({
+export default async function OperationsLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <AppShell>{children}</AppShell>;
+  const session = await getDemoSession();
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  return <AppShell user={session.user}>{children}</AppShell>;
 }

@@ -1,5 +1,9 @@
 import Link from "next/link";
 
+import type { DemoUser } from "@/lib/auth/demo-account";
+
+import { SignOutButton } from "./sign-out-button";
+
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/customers", label: "Customers" },
@@ -9,7 +13,10 @@ const navItems = [
   { href: "/reports", label: "Reports" },
 ];
 
-export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
+export function AppShell({
+  children,
+  user,
+}: Readonly<{ children: React.ReactNode; user: DemoUser }>) {
   return (
     <div className="min-h-screen bg-[#f5f7fa] text-[#18212f]">
       <div className="grid min-h-screen grid-cols-[minmax(0,1fr)] lg:grid-cols-[248px_minmax(0,1fr)]">
@@ -51,8 +58,14 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
                   Internal operations dashboard
                 </h1>
               </div>
-              <div className="text-sm text-[#64748b]">
-                Scaffold milestone: app foundation
+              <div className="flex flex-col gap-2 text-sm text-[#64748b] sm:flex-row sm:items-center">
+                <span>
+                  Signed in as{" "}
+                  <span className="font-medium text-[#334155]">
+                    {user.name}
+                  </span>
+                </span>
+                <SignOutButton />
               </div>
             </div>
           </header>

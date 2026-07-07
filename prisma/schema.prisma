@@ -6,3 +6,275 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum TeamRole {
+  OPERATIONS_MANAGER
+  ADMIN_STAFF
+  SUPPORT_STAFF
+  QA_ENGINEER
+  DEVELOPER
+  BUSINESS_OWNER
+
+  @@map("team_role")
+}
+
+enum TeamMemberStatus {
+  ACTIVE
+  INACTIVE
+
+  @@map("team_member_status")
+}
+
+enum CustomerStatus {
+  ACTIVE
+  PROSPECT
+  PAUSED
+  ARCHIVED
+
+  @@map("customer_status")
+}
+
+enum WorkItemKind {
+  ORDER
+  CAMPAIGN
+  SERVICE_REQUEST
+
+  @@map("work_item_kind")
+}
+
+enum WorkItemStatus {
+  DRAFT
+  ACTIVE
+  BLOCKED
+  COMPLETED
+  CANCELLED
+
+  @@map("work_item_status")
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+
+  @@map("priority")
+}
+
+enum InventoryCategory {
+  DEVICE
+  LICENSE
+  MARKETING_ASSET
+  SKU
+  EQUIPMENT
+  TEST_ACCOUNT
+  SOFTWARE_ASSET
+  OTHER
+
+  @@map("inventory_category")
+}
+
+enum InventoryStatus {
+  AVAILABLE
+  RESERVED
+  ASSIGNED
+  LOW_STOCK
+  RETIRED
+  UNAVAILABLE
+
+  @@map("inventory_status")
+}
+
+enum IssueCategory {
+  BUG
+  SUPPORT_REQUEST
+  BLOCKER
+  FULFILLMENT
+  DATA_QUALITY
+  OTHER
+
+  @@map("issue_category")
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  RESOLVED
+  CLOSED
+
+  @@map("issue_status")
+}
+
+enum ActivityAction {
+  CREATED
+  UPDATED
+  STATUS_CHANGED
+  ASSIGNED
+  ARCHIVED
+  RESOLVED
+
+  @@map("activity_action")
+}
+
+model TeamMember {
+  id             String           @id @default(cuid())
+  name           String
+  email          String           @unique
+  role           TeamRole         @default(SUPPORT_STAFF)
+  status         TeamMemberStatus @default(ACTIVE)
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  archivedAt     DateTime?        @map("archived_at")
+  customers      Customer[]       @relation("CustomerOwner")
+  workItems      WorkItem[]       @relation("WorkItemOwner")
+  inventoryItems InventoryItem[]  @relation("InventoryItemOwner")
+  issues         Issue[]          @relation("IssueOwner")
+  activityEvents ActivityEvent[]  @relation("ActivityActor")
+
+  @@index([role])
+  @@index([status])
+  @@index([archivedAt])
+  @@map("team_members")
+}
+
+model Customer {
+  id             String          @id @default(cuid())
+  name           String
+  contactName    String          @map("contact_name")
+  email          String?
+  phone          String?
+  status         CustomerStatus  @default(PROSPECT)
+  ownerId        String?         @map("owner_id")
+  owner          TeamMember?     @relation("CustomerOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  notes          String?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  archivedAt     DateTime?       @map("archived_at")
+  workItems      WorkItem[]
+  inventoryItems InventoryItem[]
+  issues         Issue[]
+  activityEvents ActivityEvent[]
+
+  @@index([status])
+  @@index([ownerId])
+  @@index([archivedAt])
+  @@map("customers")
+}
+
+model WorkItem {
+  id                  String          @id @default(cuid())
+  title               String
+  kind                WorkItemKind    @default(ORDER)
+  status              WorkItemStatus  @default(DRAFT)
+  priority            Priority        @default(MEDIUM)
+  dueDate             DateTime?       @map("due_date")
+  completedAt         DateTime?       @map("completed_at")
+  estimatedValueCents Int?            @map("estimated_value_cents")
+  notes               String?
+  customerId          String          @map("customer_id")
+  customer            Customer        @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  ownerId             String?         @map("owner_id")
+  owner               TeamMember?     @relation("WorkItemOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt           DateTime        @default(now()) @map("created_at")
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+  archivedAt          DateTime?       @map("archived_at")
+  inventoryItems      InventoryItem[]
+  issues              Issue[]
+  activityEvents      ActivityEvent[]
+
+  @@index([customerId])
+  @@index([ownerId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([archivedAt])
+  @@map("work_items")
+}
+
+model InventoryItem {
+  id                String            @id @default(cuid())
+  name              String
+  category          InventoryCategory
+  status            InventoryStatus   @default(AVAILABLE)
+  quantity          Int               @default(1)
+  lowStockThreshold Int               @default(0) @map("low_stock_threshold")
+  location          String?
+  referenceCode     String?           @unique @map("reference_code")
+  notes             String?
+  ownerId           String?           @map("owner_id")
+  owner             TeamMember?       @relation("InventoryItemOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  customerId        String?           @map("customer_id")
+  customer          Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  workItemId        String?           @map("work_item_id")
+  workItem          WorkItem?         @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  archivedAt        DateTime?         @map("archived_at")
+  activityEvents    ActivityEvent[]
+
+  @@index([category])
+  @@index([status])
+  @@index([ownerId])
+  @@index([customerId])
+  @@index([workItemId])
+  @@index([archivedAt])
+  @@map("inventory_items")
+}
+
+model Issue {
+  id              String          @id @default(cuid())
+  title           String
+  category        IssueCategory
+  priority        Priority        @default(MEDIUM)
+  status          IssueStatus     @default(OPEN)
+  description     String
+  resolutionNotes String?         @map("resolution_notes")
+  resolvedAt      DateTime?       @map("resolved_at")
+  ownerId         String?         @map("owner_id")
+  owner           TeamMember?     @relation("IssueOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  customerId      String?         @map("customer_id")
+  customer        Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  workItemId      String?         @map("work_item_id")
+  workItem        WorkItem?       @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  archivedAt      DateTime?       @map("archived_at")
+  activityEvents  ActivityEvent[]
+
+  @@index([category])
+  @@index([priority])
+  @@index([status])
+  @@index([ownerId])
+  @@index([customerId])
+  @@index([workItemId])
+  @@index([archivedAt])
+  @@map("issues")
+}
+
+model ActivityEvent {
+  id              String         @id @default(cuid())
+  action          ActivityAction
+  summary         String
+  metadata        Json?
+  actorId         String?        @map("actor_id")
+  actor           TeamMember?    @relation("ActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
+  customerId      String?        @map("customer_id")
+  customer        Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  workItemId      String?        @map("work_item_id")
+  workItem        WorkItem?      @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  inventoryItemId String?        @map("inventory_item_id")
+  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+  issueId         String?        @map("issue_id")
+  issue           Issue?         @relation(fields: [issueId], references: [id], onDelete: SetNull)
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  @@index([action])
+  @@index([actorId])
+  @@index([customerId])
+  @@index([workItemId])
+  @@index([inventoryItemId])
+  @@index([issueId])
+  @@index([createdAt])
+  @@map("activity_events")
+}

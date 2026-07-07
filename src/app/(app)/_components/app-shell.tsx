@@ -1,17 +1,10 @@
 import Link from "next/link";
 
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { DemoUser } from "@/lib/auth/demo-account";
 
+import { AppNavigation } from "./app-navigation";
 import { SignOutButton } from "./sign-out-button";
-
-const navItems = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/customers", label: "Customers" },
-  { href: "/orders", label: "Orders" },
-  { href: "/inventory", label: "Inventory" },
-  { href: "/issues", label: "Issues" },
-  { href: "/reports", label: "Reports" },
-];
 
 export function AppShell({
   children,
@@ -26,25 +19,12 @@ export function AppShell({
               <div className="text-lg font-semibold">OpsPilot</div>
               <div className="mt-1 text-sm text-[#64748b]">Operations desk</div>
             </Link>
-            <div className="rounded-lg border border-[#d9e1ea] px-3 py-2 text-sm text-[#334155] lg:mt-6">
+            <StatusBadge className="lg:mt-6" tone="demo">
               Demo workspace
-            </div>
+            </StatusBadge>
           </div>
 
-          <nav
-            aria-label="Main navigation"
-            className="mt-5 flex min-w-0 max-w-full gap-2 overflow-x-auto lg:block lg:space-y-1"
-          >
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="block min-w-fit rounded-lg px-3 py-2 text-sm font-medium text-[#334155] hover:bg-[#edf3f7] hover:text-[#0f172a]"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <AppNavigation />
         </aside>
 
         <div className="min-w-0">

@@ -1,3 +1,6 @@
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatusBadge } from "@/components/ui/status-badge";
+
 type ModulePageProps = {
   title: string;
   description: string;
@@ -39,9 +42,21 @@ export function ModulePage({
       <div className="overflow-hidden rounded-lg border border-[#d9e1ea] bg-white">
         <div className="flex flex-col gap-3 border-b border-[#d9e1ea] px-4 py-3 md:flex-row md:items-center md:justify-between">
           <div className="font-medium">Records</div>
-          <div className="flex gap-2">
-            <div className="h-9 w-44 rounded-lg border border-[#d9e1ea] bg-[#f8fafc]" />
-            <div className="h-9 w-28 rounded-lg border border-[#d9e1ea] bg-[#f8fafc]" />
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge>Scaffolded</StatusBadge>
+            <input
+              aria-label="Search records"
+              className="h-9 w-44 rounded-lg border border-[#d9e1ea] bg-[#f8fafc] px-3 text-sm text-[#64748b]"
+              disabled
+              placeholder="Search"
+            />
+            <select
+              aria-label="Filter status"
+              className="h-9 w-28 rounded-lg border border-[#d9e1ea] bg-[#f8fafc] px-3 text-sm text-[#64748b]"
+              disabled
+            >
+              <option>Status</option>
+            </select>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -58,10 +73,13 @@ export function ModulePage({
             <tbody>
               <tr>
                 <td
-                  className="px-4 py-8 text-center text-[#64748b]"
+                  className="px-4 py-4 text-center text-[#64748b]"
                   colSpan={columns.length}
                 >
-                  No records loaded
+                  <EmptyState
+                    description="This scaffolded table is ready for fictional demo records when the module workflow is connected."
+                    title="No records loaded"
+                  />
                 </td>
               </tr>
             </tbody>

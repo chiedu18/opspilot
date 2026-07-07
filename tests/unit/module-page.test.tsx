@@ -22,6 +22,9 @@ describe("ModulePage", () => {
       screen.getByText("Accounts, contacts, ownership, and account status."),
     ).toBeInTheDocument();
     expect(screen.getByText("No records loaded")).toBeInTheDocument();
+    expect(screen.getByText("Scaffolded")).toBeInTheDocument();
+    expect(screen.getByLabelText("Search records")).toBeDisabled();
+    expect(screen.getByLabelText("Filter status")).toBeDisabled();
     expect(screen.getByRole("columnheader", { name: "Customer" })).toBeVisible();
     expect(screen.getByRole("columnheader", { name: "Contact" })).toBeVisible();
     expect(screen.getByRole("columnheader", { name: "Status" })).toBeVisible();

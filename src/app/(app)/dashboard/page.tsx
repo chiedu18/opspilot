@@ -1,3 +1,6 @@
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatusBadge } from "@/components/ui/status-badge";
+
 const metrics = [
   { label: "Active customers", value: "0", tone: "text-[#0f766e]" },
   { label: "Open orders", value: "0", tone: "text-[#2563eb]" },
@@ -44,8 +47,11 @@ export default function DashboardPage() {
           <div className="border-b border-[#d9e1ea] px-4 py-3">
             <h3 className="font-semibold">Work status</h3>
           </div>
-          <div className="grid h-72 place-items-center px-4 py-8 text-sm text-[#64748b]">
-            No chart data loaded
+          <div className="grid min-h-72 place-items-center px-4 py-8">
+            <EmptyState
+              description="Dashboard metrics will be connected after the core CRUD workflows are implemented."
+              title="No chart data loaded"
+            />
           </div>
         </div>
 
@@ -60,9 +66,7 @@ export default function DashboardPage() {
                 className="flex items-center justify-between gap-4 px-4 py-3"
               >
                 <span className="text-sm font-medium">{queue}</span>
-                <span className="rounded-lg bg-[#eef6f4] px-2 py-1 text-xs font-medium text-[#0f766e]">
-                  Scaffolded
-                </span>
+                <StatusBadge tone="neutral">Scaffolded</StatusBadge>
               </div>
             ))}
           </div>

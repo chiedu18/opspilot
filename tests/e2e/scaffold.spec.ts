@@ -33,6 +33,26 @@ test.describe("scaffold routes", () => {
     await expect(page.getByText("Scaffolded")).toHaveCount(5);
   });
 
+  test("marks the current app section in the navigation", async ({ page }) => {
+    await signInAsDemoUser(page);
+
+    await page.goto("/dashboard");
+    await expect(page.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+
+    await page.getByRole("link", { name: "Customers" }).click();
+    await expect(page).toHaveURL(/\/customers$/);
+    await expect(page.getByRole("link", { name: "Customers" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(
+      page.getByRole("link", { name: "Dashboard" }),
+    ).not.toHaveAttribute("aria-current", "page");
+  });
+
   for (const route of moduleRoutes) {
     test(`renders ${route.path} as an empty scaffold`, async ({ page }) => {
       await signInAsDemoUser(page);

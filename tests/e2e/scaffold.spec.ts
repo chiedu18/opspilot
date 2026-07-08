@@ -3,7 +3,6 @@ import { expect, test } from "@playwright/test";
 import { signInAsDemoUser } from "./helpers/auth";
 
 const moduleRoutes = [
-  { path: "/customers", heading: "Customers" },
   { path: "/orders", heading: "Orders" },
   { path: "/inventory", heading: "Inventory" },
   { path: "/issues", heading: "Issues" },
@@ -65,6 +64,18 @@ test.describe("scaffold routes", () => {
       await expect(page.getByText("No records loaded")).toBeVisible();
     });
   }
+
+  test("renders customers as the first connected workflow", async ({ page }) => {
+    await signInAsDemoUser(page);
+
+    await page.goto("/customers");
+
+    await expect(
+      page.getByRole("heading", { exact: true, name: "Customers" }),
+    ).toBeVisible();
+    await expect(page.getByText("Northstar Outfitters Demo")).toBeVisible();
+    await expect(page.getByRole("link", { name: "New customer" })).toBeVisible();
+  });
 
   test("keeps dashboard and module routes within the mobile viewport", async ({
     page,

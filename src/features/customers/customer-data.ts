@@ -41,8 +41,20 @@ export const customerSelect = {
   },
 } satisfies Prisma.CustomerSelect;
 
+export const customerOwnerSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  status: true,
+} satisfies Prisma.TeamMemberSelect;
+
 type CustomerRecord = Prisma.CustomerGetPayload<{
   select: typeof customerSelect;
+}>;
+
+export type CustomerOwnerOption = Prisma.TeamMemberGetPayload<{
+  select: typeof customerOwnerSelect;
 }>;
 
 const ownerRelation = (ownerId: string | null | undefined) => {
@@ -145,3 +157,13 @@ export const isActiveTeamMember = async (
 
   return Boolean(owner);
 };
+
+export const listActiveCustomerOwners = (prisma: PrismaClient) =>
+  prisma.teamMember.findMany({
+    orderBy: { name: "asc" },
+    select: customerOwnerSelect,
+    where: {
+      archivedAt: null,
+      status: TeamMemberStatus.ACTIVE,
+    },
+  });

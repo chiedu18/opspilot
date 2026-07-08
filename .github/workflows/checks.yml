@@ -16,6 +16,22 @@ jobs:
     name: Lint, test, and build
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      DATABASE_URL: "postgresql://opspilot:opspilot@localhost:5432/opspilot?schema=public"
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: opspilot
+          POSTGRES_PASSWORD: opspilot
+          POSTGRES_USER: opspilot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U opspilot -d opspilot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Check out repository
@@ -32,8 +48,12 @@ jobs:
 
       - name: Generate Prisma client
         run: npm run db:generate
-        env:
-          DATABASE_URL: "postgresql://opspilot:opspilot@localhost:5432/opspilot?schema=public"
+
+      - name: Apply database migrations
+        run: npx prisma migrate deploy
+
+      - name: Seed demo data
+        run: npm run db:seed
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium

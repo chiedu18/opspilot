@@ -23,8 +23,13 @@ test.describe("scaffold routes", () => {
     await expect(
       page.getByRole("heading", { exact: true, name: "Dashboard" }),
     ).toBeVisible();
-    await expect(page.getByText("No chart data loaded")).toBeVisible();
-    await expect(page.getByText("Scaffolded")).toHaveCount(5);
+    await expect(
+      page.getByRole("group", { name: "Active customers: 7" }),
+    ).toBeVisible();
+    await expect(page.getByLabel("Work items by status")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Overdue orders" }),
+    ).toBeVisible();
   });
 
   test("marks the current app section in the navigation", async ({ page }) => {

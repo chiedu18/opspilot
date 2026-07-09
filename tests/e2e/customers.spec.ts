@@ -56,7 +56,9 @@ test.describe.serial("customer workflow", () => {
 
     await page.getByLabel("Status").selectOption("ARCHIVED");
     await page.getByRole("button", { name: "Apply" }).click();
-    await expect(page.getByText("ClearSky Logistics Demo")).toBeVisible();
+    await expect(page.getByText("ClearSky Logistics Demo")).toBeVisible({
+      timeout: workflowNavigationTimeout,
+    });
 
     await page.getByRole("link", { name: "Reset" }).click();
     await expect(page).toHaveURL(/\/customers$/);

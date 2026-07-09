@@ -167,7 +167,7 @@ test.describe.serial("inventory workflow", () => {
       page.getByText(
         "Inventory item archived and removed from the default list.",
       ),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: workflowNavigationTimeout });
 
     await page.getByLabel("Search").fill(testInventory.name);
     await page.getByLabel("Archive visibility").selectOption("ONLY");

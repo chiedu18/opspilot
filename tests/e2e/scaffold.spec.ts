@@ -2,10 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { signInAsDemoUser } from "./helpers/auth";
 
-const moduleRoutes = [
-  { path: "/issues", heading: "Issues" },
-  { path: "/reports", heading: "Reports" },
-];
+const moduleRoutes = [{ path: "/reports", heading: "Reports" }];
 
 async function expectNoPageWideOverflow(page: import("@playwright/test").Page) {
   const hasOverflow = await page.evaluate(() => {
@@ -101,6 +98,18 @@ test.describe("scaffold routes", () => {
     ).toBeVisible();
   });
 
+  test("renders issues as a connected workflow", async ({ page }) => {
+    await signInAsDemoUser(page);
+
+    await page.goto("/issues");
+
+    await expect(
+      page.getByRole("heading", { exact: true, name: "Issues" }),
+    ).toBeVisible();
+    await expect(page.getByText("Device shipment delay")).toBeVisible();
+    await expect(page.getByRole("link", { name: "New issue" })).toBeVisible();
+  });
+
   test("keeps dashboard and module routes within the mobile viewport", async ({
     page,
   }) => {
@@ -117,6 +126,9 @@ test.describe("scaffold routes", () => {
     await expectNoPageWideOverflow(page);
 
     await page.goto("/inventory");
+    await expectNoPageWideOverflow(page);
+
+    await page.goto("/issues");
     await expectNoPageWideOverflow(page);
   });
 });

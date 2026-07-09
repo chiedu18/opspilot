@@ -104,6 +104,7 @@ export type InventoryRelationshipSnapshot = {
   archivedAt: Date | null;
   customerId: string | null;
   id: string;
+  ownerId: string | null;
   referenceCode: string | null;
   status: InventoryStatus;
   workItemId: string | null;

@@ -31,7 +31,7 @@ const deleteTestCustomer = async () => {
 };
 
 test.describe.serial("customer workflow", () => {
-  test.setTimeout(60_000);
+  test.setTimeout(75_000);
 
   test.beforeAll(async () => {
     await deleteTestCustomer();

@@ -79,6 +79,7 @@ export async function PATCH(
         archivedAt: true,
         customerId: true,
         id: true,
+        ownerId: true,
         referenceCode: true,
         status: true,
         workItemId: true,

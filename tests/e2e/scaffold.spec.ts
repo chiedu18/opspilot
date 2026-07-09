@@ -3,7 +3,6 @@ import { expect, test } from "@playwright/test";
 import { signInAsDemoUser } from "./helpers/auth";
 
 const moduleRoutes = [
-  { path: "/inventory", heading: "Inventory" },
   { path: "/issues", heading: "Issues" },
   { path: "/reports", heading: "Reports" },
 ];
@@ -88,6 +87,20 @@ test.describe("scaffold routes", () => {
     await expect(page.getByRole("link", { name: "New order" })).toBeVisible();
   });
 
+  test("renders inventory as a connected workflow", async ({ page }) => {
+    await signInAsDemoUser(page);
+
+    await page.goto("/inventory");
+
+    await expect(
+      page.getByRole("heading", { exact: true, name: "Inventory" }),
+    ).toBeVisible();
+    await expect(page.getByText("Barcode scanner pool")).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "New inventory item" }),
+    ).toBeVisible();
+  });
+
   test("keeps dashboard and module routes within the mobile viewport", async ({
     page,
   }) => {
@@ -101,6 +114,9 @@ test.describe("scaffold routes", () => {
     await expectNoPageWideOverflow(page);
 
     await page.goto("/orders");
+    await expectNoPageWideOverflow(page);
+
+    await page.goto("/inventory");
     await expectNoPageWideOverflow(page);
   });
 });

@@ -61,18 +61,23 @@ export const validateInventoryRelationships = async (
     return apiInventoryAssignmentRequired();
   }
 
-  if (input.ownerId && !(await isActiveInventoryOwner(prisma, input.ownerId))) {
+  if (
+    input.ownerId &&
+    input.ownerId !== existing?.ownerId &&
+    !(await isActiveInventoryOwner(prisma, input.ownerId))
+  ) {
     return apiInvalidInventoryOwner();
   }
 
   if (
     input.customerId &&
+    input.customerId !== existing?.customerId &&
     !(await isAvailableInventoryCustomer(prisma, input.customerId))
   ) {
     return apiInvalidInventoryCustomer();
   }
 
-  if (input.workItemId) {
+  if (input.workItemId && input.workItemId !== existing?.workItemId) {
     const workItem = await findAvailableInventoryWorkItem(
       prisma,
       input.workItemId,

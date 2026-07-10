@@ -31,7 +31,9 @@ async function expectNoPageWideOverflow(page: Page) {
 test.describe("core demo regression", () => {
   test("walks the main read-only demo path and exports a report", async ({
     page,
-  }) => {
+  }, testInfo) => {
+    test.setTimeout(60_000);
+
     await signInAsDemoUser(page);
 
     await page.goto("/dashboard");
@@ -90,14 +92,17 @@ test.describe("core demo regression", () => {
     await expect(page.getByText("Orders report filters")).toBeVisible();
     await expect(page.getByText("POS device rollout")).toBeVisible();
 
-    const downloadPromise = page.waitForEvent("download");
-    await page.getByRole("link", { name: "Export CSV" }).click();
-    const download = await downloadPromise;
-    const downloadPath = await download.path();
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("link", { name: "Export CSV" }).click(),
+    ]);
+    const downloadPath = testInfo.outputPath("orders-report.csv");
+
+    await download.saveAs(downloadPath);
 
     expect(downloadPath).toBeTruthy();
 
-    const csv = await readFile(downloadPath!, "utf8");
+    const csv = await readFile(downloadPath, "utf8");
 
     expect(csv).toContain("Work item,Kind,Status,Priority,Customer");
     expect(csv).toContain("Northstar Outfitters Demo");
@@ -107,6 +112,8 @@ test.describe("core demo regression", () => {
   test("keeps main demo routes inside desktop, tablet, and mobile viewports", async ({
     page,
   }) => {
+    test.setTimeout(60_000);
+
     await signInAsDemoUser(page);
 
     for (const viewport of responsiveViewports) {

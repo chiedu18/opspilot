@@ -6,13 +6,13 @@ The app is built to feel like practical internal software: dashboard-first, form
 
 ## Status
 
-OpsPilot is implemented and tested locally. Deployment is still in progress.
+OpsPilot is implemented, deployed, and tested as a demo portfolio project.
 
 - Local app shell and demo sign-in are implemented.
 - Customer, order/campaign, inventory, issue, dashboard, and report workflows are implemented.
 - PostgreSQL schema, Prisma migration, and demo seed data are included.
 - Unit and browser tests cover the main demo workflows.
-- Live demo URL: not deployed yet.
+- Live demo URL: [https://opspilot-opal.vercel.app](https://opspilot-opal.vercel.app)
 
 ## Demo Account
 
@@ -124,11 +124,20 @@ npm run test:e2e   # 22 tests passed
 
 The Playwright suite starts the app, signs in with the demo account, checks dashboard/report behavior, and exercises the core CRUD workflows.
 
+Latest deployed verification:
+
+```text
+Live login flow      # passed
+Live dashboard load  # passed
+Live CSV export      # passed
+Mobile route checks  # passed
+```
+
 ## Deployment Notes
 
-Deployment is planned for Vercel with a hosted PostgreSQL database such as Neon or Supabase.
+Deployment uses Vercel with a Neon-hosted PostgreSQL database.
 
-Expected deployment steps:
+Current deployment steps:
 
 1. Create a hosted PostgreSQL database.
 2. Add `DATABASE_URL` to the deployment environment.

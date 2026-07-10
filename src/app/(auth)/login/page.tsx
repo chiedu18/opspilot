@@ -30,9 +30,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = params?.error ? loginErrors[params.error] : undefined;
 
   return (
-    <main className="min-h-screen bg-[#eef2f6] px-5 py-8 text-[#18212f]">
+    <main className="op-app-root min-h-screen px-5 py-8 text-[#18212f]">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-5xl items-center gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
-        <section className="space-y-5">
+        <section className="op-section-enter space-y-5">
           <div>
             <p className="text-sm font-medium text-[#0f766e]">
               Self-directed portfolio project
@@ -52,7 +52,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               (item) => (
                 <div
                   key={item}
-                  className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3 text-sm font-medium text-[#334155]"
+                  className="op-surface-muted rounded-lg px-4 py-3 text-sm font-medium text-[#334155]"
                 >
                   {item}
                 </div>
@@ -61,7 +61,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         </section>
 
-        <section className="rounded-lg border border-[#d9e1ea] bg-white p-5 shadow-sm">
+        <section className="op-surface op-section-enter rounded-lg p-5">
           <div>
             <h2 className="text-xl font-semibold">Demo sign in</h2>
             <p className="mt-1 text-sm text-[#64748b]">

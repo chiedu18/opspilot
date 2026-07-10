@@ -11,11 +11,14 @@ export function AppShell({
   user,
 }: Readonly<{ children: React.ReactNode; user: DemoUser }>) {
   return (
-    <div className="min-h-screen bg-[#f5f7fa] text-[#18212f]">
+    <div className="op-app-root min-h-screen text-[#18212f]">
       <div className="grid min-h-screen grid-cols-[minmax(0,1fr)] lg:grid-cols-[248px_minmax(0,1fr)]">
-        <aside className="min-w-0 border-b border-[#d9e1ea] bg-white px-5 py-4 lg:border-b-0 lg:border-r">
+        <aside className="op-shell-surface min-w-0 border-b border-[#d9e1ea] px-5 py-4 lg:border-b-0 lg:border-r">
           <div className="flex min-w-0 items-center justify-between gap-4 lg:block">
-            <Link href="/dashboard" className="block">
+            <Link
+              href="/dashboard"
+              className="op-focus-ring block rounded-md"
+            >
               <div className="text-lg font-semibold">OpsPilot</div>
               <div className="mt-1 text-sm text-[#64748b]">Operations desk</div>
             </Link>
@@ -28,7 +31,7 @@ export function AppShell({
         </aside>
 
         <div className="min-w-0">
-          <header className="border-b border-[#d9e1ea] bg-white px-5 py-4">
+          <header className="op-shell-surface border-b border-[#d9e1ea] px-5 py-4">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm font-medium text-[#0f766e]">
@@ -50,7 +53,7 @@ export function AppShell({
             </div>
           </header>
 
-          <main className="px-5 py-5">{children}</main>
+          <main className="op-page-enter px-5 py-5">{children}</main>
         </div>
       </div>
     </div>

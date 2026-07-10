@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "./helpers/load-env";
 
 import { expect, test } from "@playwright/test";
 import { Pool } from "pg";

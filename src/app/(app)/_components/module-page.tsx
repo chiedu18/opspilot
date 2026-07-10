@@ -24,13 +24,13 @@ export function ModulePage({
           <p className="mt-1 max-w-3xl text-sm text-[#64748b]">{description}</p>
         </div>
         <div className="flex gap-3">
-          <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+          <div className="op-surface rounded-lg px-4 py-3">
             <div className="text-xs font-medium uppercase text-[#64748b]">
               Active
             </div>
             <div className="mt-1 text-lg font-semibold">{primaryMetric}</div>
           </div>
-          <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+          <div className="op-surface rounded-lg px-4 py-3">
             <div className="text-xs font-medium uppercase text-[#64748b]">
               Attention
             </div>
@@ -39,7 +39,7 @@ export function ModulePage({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-[#d9e1ea] bg-white">
+      <div className="op-surface overflow-hidden rounded-lg">
         <div className="flex flex-col gap-3 border-b border-[#d9e1ea] px-4 py-3 md:flex-row md:items-center md:justify-between">
           <div className="font-medium">Records</div>
           <div className="flex flex-wrap items-center gap-2">

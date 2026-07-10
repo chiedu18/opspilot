@@ -10,7 +10,7 @@ export function LoadingState({
   return (
     <div
       aria-live="polite"
-      className="rounded-lg border border-[#d9e1ea] bg-white p-5"
+      className="op-surface op-section-enter rounded-lg p-5"
       role="status"
     >
       <div className="max-w-xl">
@@ -21,7 +21,7 @@ export function LoadingState({
         {[0, 1, 2].map((item) => (
           <div
             aria-hidden="true"
-            className="h-20 animate-pulse rounded-lg border border-[#e2e8f0] bg-[#f8fafc]"
+            className="op-skeleton h-20 rounded-lg border border-[#e2e8f0]"
             key={item}
           />
         ))}

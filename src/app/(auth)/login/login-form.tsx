@@ -26,7 +26,7 @@ export function LoginForm({
         </label>
         <input
           autoComplete="email"
-          className="mt-1 w-full rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4]"
+          className="op-focus-ring op-interactive mt-1 w-full rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4]"
           defaultValue={demoEmail}
           id="email"
           name="email"
@@ -39,7 +39,7 @@ export function LoginForm({
         </label>
         <input
           autoComplete="current-password"
-          className="mt-1 w-full rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4]"
+          className="op-focus-ring op-interactive mt-1 w-full rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4]"
           defaultValue={demoPassword}
           id="password"
           name="password"
@@ -48,7 +48,7 @@ export function LoginForm({
       </div>
 
       <button
-        className="w-full rounded-lg bg-[#0f766e] px-4 py-2 text-sm font-semibold text-white hover:bg-[#115e59]"
+        className="op-focus-ring op-pressable w-full rounded-lg bg-[#0f766e] px-4 py-2 text-sm font-semibold text-white hover:bg-[#115e59]"
         type="submit"
       >
         Sign in

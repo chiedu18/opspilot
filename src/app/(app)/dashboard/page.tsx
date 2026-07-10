@@ -47,7 +47,7 @@ const statusBarClasses: Record<WorkItemStatus, string> = {
 };
 
 const actionLinkClass =
-  "rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]";
+  "op-focus-ring op-pressable rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc]";
 
 const getConfiguredReferenceDate = () => {
   const configuredDate = process.env.OPSPILOT_DASHBOARD_REFERENCE_DATE;
@@ -74,7 +74,7 @@ function MetricCard({ detail, label, tone, value }: MetricCardProps) {
   return (
     <div
       aria-label={`${label}: ${formattedValue}`}
-      className="rounded-lg border border-[#d9e1ea] bg-white p-4"
+      className="op-surface rounded-lg p-4"
       role="group"
     >
       <div className="text-sm font-medium text-[#64748b]">{label}</div>
@@ -183,14 +183,14 @@ export function DashboardView({ summary }: DashboardViewProps) {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="op-section-enter grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {metricCards.map((metric) => (
           <MetricCard key={metric.label} {...metric} />
         ))}
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.25fr_1fr]">
-        <div className="rounded-lg border border-[#d9e1ea] bg-white">
+        <div className="op-surface rounded-lg">
           <div className="flex flex-col gap-2 border-b border-[#d9e1ea] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="font-semibold">Work status</h3>
@@ -235,7 +235,7 @@ export function DashboardView({ summary }: DashboardViewProps) {
                     </div>
                     <div className="h-3 overflow-hidden rounded-full bg-[#e2e8f0]">
                       <div
-                        className={`h-full rounded-full ${statusBarClasses[bucket.status]}`}
+                        className={`h-full rounded-full transition-[width] duration-300 ease-out ${statusBarClasses[bucket.status]}`}
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -251,7 +251,7 @@ export function DashboardView({ summary }: DashboardViewProps) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-[#d9e1ea] bg-white">
+        <div className="op-surface rounded-lg">
           <div className="border-b border-[#d9e1ea] px-4 py-3">
             <h3 className="font-semibold">Weekly completion</h3>
             <p className="mt-1 text-xs text-[#64748b]">
@@ -260,7 +260,7 @@ export function DashboardView({ summary }: DashboardViewProps) {
             </p>
           </div>
           <div className="grid gap-3 px-4 py-5 sm:grid-cols-2 xl:grid-cols-1">
-            <div className="rounded-lg border border-[#d9e1ea] bg-[#f8fafc] px-4 py-3">
+            <div className="op-surface-muted rounded-lg px-4 py-3">
               <div className="text-xs font-medium uppercase text-[#64748b]">
                 Completed work items
               </div>
@@ -268,7 +268,7 @@ export function DashboardView({ summary }: DashboardViewProps) {
                 {formatCount(summary.metrics.completedWorkItemsThisWeek)}
               </div>
             </div>
-            <div className="rounded-lg border border-[#d9e1ea] bg-[#f8fafc] px-4 py-3">
+            <div className="op-surface-muted rounded-lg px-4 py-3">
               <div className="text-xs font-medium uppercase text-[#64748b]">
                 Resolved or closed issues
               </div>
@@ -281,7 +281,7 @@ export function DashboardView({ summary }: DashboardViewProps) {
       </div>
 
       <div className="grid gap-5 xl:grid-cols-3">
-        <div className="rounded-lg border border-[#d9e1ea] bg-white">
+        <div className="op-surface rounded-lg">
           <PanelHeader
             actionHref="/orders?dueDateBucket=OVERDUE"
             actionLabel="View orders"
@@ -318,7 +318,7 @@ export function DashboardView({ summary }: DashboardViewProps) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-[#d9e1ea] bg-white">
+        <div className="op-surface rounded-lg">
           <PanelHeader
             actionHref="/issues?resolutionState=UNRESOLVED"
             actionLabel="View issues"
@@ -362,7 +362,7 @@ export function DashboardView({ summary }: DashboardViewProps) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-[#d9e1ea] bg-white">
+        <div className="op-surface rounded-lg">
           <PanelHeader
             actionHref="/inventory?lowStockState=LOW_STOCK"
             actionLabel="View inventory"

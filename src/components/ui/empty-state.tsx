@@ -6,7 +6,7 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description, eyebrow }: EmptyStateProps) {
   return (
-    <div className="mx-auto grid max-w-lg place-items-center gap-2 px-4 py-8 text-center">
+    <div className="op-section-enter mx-auto grid max-w-lg place-items-center gap-2 px-4 py-8 text-center">
       {eyebrow ? (
         <p className="text-xs font-semibold uppercase text-[#64748b]">
           {eyebrow}

@@ -2,8 +2,6 @@ import { expect, test } from "@playwright/test";
 
 import { signInAsDemoUser } from "./helpers/auth";
 
-const moduleRoutes = [{ path: "/reports", heading: "Reports" }];
-
 async function expectNoPageWideOverflow(page: import("@playwright/test").Page) {
   const hasOverflow = await page.evaluate(() => {
     const root = document.documentElement;
@@ -51,19 +49,6 @@ test.describe("scaffold routes", () => {
       page.getByRole("link", { name: "Dashboard" }),
     ).not.toHaveAttribute("aria-current", "page");
   });
-
-  for (const route of moduleRoutes) {
-    test(`renders ${route.path} as an empty scaffold`, async ({ page }) => {
-      await signInAsDemoUser(page);
-
-      await page.goto(route.path);
-
-      await expect(
-        page.getByRole("heading", { name: route.heading }),
-      ).toBeVisible();
-      await expect(page.getByText("No records loaded")).toBeVisible();
-    });
-  }
 
   test("renders customers as the first connected workflow", async ({ page }) => {
     await signInAsDemoUser(page);
@@ -115,6 +100,19 @@ test.describe("scaffold routes", () => {
     await expect(page.getByRole("link", { name: "New issue" })).toBeVisible();
   });
 
+  test("renders reports as a connected workflow", async ({ page }) => {
+    await signInAsDemoUser(page);
+
+    await page.goto("/reports");
+
+    await expect(
+      page.getByRole("heading", { exact: true, name: "Reports" }),
+    ).toBeVisible();
+    await expect(page.getByText("Orders report filters")).toBeVisible();
+    await expect(page.getByText("POS device rollout")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Export CSV" })).toBeVisible();
+  });
+
   test("keeps dashboard and module routes within the mobile viewport", async ({
     page,
   }) => {
@@ -134,6 +132,9 @@ test.describe("scaffold routes", () => {
     await expectNoPageWideOverflow(page);
 
     await page.goto("/issues");
+    await expectNoPageWideOverflow(page);
+
+    await page.goto("/reports");
     await expectNoPageWideOverflow(page);
   });
 });

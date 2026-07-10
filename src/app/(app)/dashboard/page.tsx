@@ -2,7 +2,10 @@ import Link from "next/link";
 
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { getDashboardSummary } from "@/features/dashboard/dashboard-data";
+import {
+  getDashboardSummary,
+  type DashboardSummary,
+} from "@/features/dashboard/dashboard-data";
 import { InventoryStatusBadge } from "@/features/inventory/inventory-badges";
 import {
   formatInventoryCount,
@@ -46,6 +49,18 @@ const statusBarClasses: Record<WorkItemStatus, string> = {
 const actionLinkClass =
   "rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]";
 
+const getConfiguredReferenceDate = () => {
+  const configuredDate = process.env.OPSPILOT_DASHBOARD_REFERENCE_DATE;
+
+  if (!configuredDate) {
+    return undefined;
+  }
+
+  const referenceDate = new Date(configuredDate);
+
+  return Number.isNaN(referenceDate.getTime()) ? undefined : referenceDate;
+};
+
 type MetricCardProps = {
   label: string;
   value: number;
@@ -72,6 +87,10 @@ function MetricCard({ detail, label, tone, value }: MetricCardProps) {
     </div>
   );
 }
+
+type DashboardViewProps = {
+  summary: DashboardSummary;
+};
 
 type PanelHeaderProps = {
   actionHref: string;
@@ -101,8 +120,7 @@ function PanelHeader({
   );
 }
 
-export default async function DashboardPage() {
-  const summary = await getDashboardSummary();
+export function DashboardView({ summary }: DashboardViewProps) {
   const totalWorkItems = summary.charts.workItemsByStatus.reduce(
     (total, bucket) => total + bucket.count,
     0,
@@ -285,7 +303,8 @@ export default async function DashboardPage() {
                     <OrderPriorityBadge value={order.priority} />
                   </div>
                   <p className="mt-2 text-xs leading-5 text-[#64748b]">
-                    {order.customerName} · {order.ownerName} · Due{" "}
+                    {order.customerName}{" - "}
+                    {order.ownerName}{" - "}Due{" "}
                     {formatOrderDate(order.dueDate)}
                   </p>
                 </div>
@@ -325,7 +344,8 @@ export default async function DashboardPage() {
                     <IssuePriorityBadge value={issue.priority} />
                   </div>
                   <p className="mt-2 text-xs leading-5 text-[#64748b]">
-                    {issue.customerName} · {issue.ownerName} · Updated{" "}
+                    {issue.customerName}{" - "}
+                    {issue.ownerName}{" - "}Updated{" "}
                     {formatIssueDate(issue.updatedAt)}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-[#64748b]">
@@ -366,11 +386,12 @@ export default async function DashboardPage() {
                     ) : null}
                   </div>
                   <p className="mt-2 text-xs leading-5 text-[#64748b]">
-                    {formatInventoryCount(item.quantity)} on hand · Threshold{" "}
-                    {formatInventoryCount(item.lowStockThreshold)}
+                    {formatInventoryCount(item.quantity)} on hand{" - "}
+                    Threshold {formatInventoryCount(item.lowStockThreshold)}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-[#64748b]">
-                    {item.customerName} · {item.location}
+                    {item.customerName}{" - "}
+                    {item.location}
                   </p>
                 </div>
               ))
@@ -385,4 +406,12 @@ export default async function DashboardPage() {
       </div>
     </section>
   );
+}
+
+export default async function DashboardPage() {
+  const summary = await getDashboardSummary({
+    referenceDate: getConfiguredReferenceDate(),
+  });
+
+  return <DashboardView summary={summary} />;
 }

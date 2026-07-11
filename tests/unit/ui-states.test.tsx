@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { EmptyState } from "../../src/components/ui/empty-state";
 import { ErrorState } from "../../src/components/ui/error-state";
 import { LoadingState } from "../../src/components/ui/loading-state";
 import { StatusBadge } from "../../src/components/ui/status-badge";
+import { ThemeToggle } from "../../src/components/ui/theme-toggle";
 
 describe("shared UI states", () => {
   it("renders an empty state with clear status text", () => {
@@ -43,5 +44,33 @@ describe("shared UI states", () => {
     render(<StatusBadge tone="demo">Demo workspace</StatusBadge>);
 
     expect(screen.getByText("Demo workspace")).toBeInTheDocument();
+  });
+
+  it("reads, switches, and persists the document theme", () => {
+    document.documentElement.dataset.theme = "dark";
+    window.localStorage.setItem("opspilot-theme", "dark");
+
+    render(<ThemeToggle />);
+
+    const toggle = screen.getByRole("button", { name: "Switch to light mode" });
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(toggle);
+
+    expect(document.documentElement.dataset.theme).toBe("light");
+    expect(window.localStorage.getItem("opspilot-theme")).toBe("light");
+    expect(
+      screen.getByRole("button", { name: "Switch to dark mode" }),
+    ).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Switch to dark mode" }),
+    );
+
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(window.localStorage.getItem("opspilot-theme")).toBe("dark");
+    expect(
+      screen.getByRole("button", { name: "Switch to light mode" }),
+    ).toHaveAttribute("aria-pressed", "true");
   });
 });

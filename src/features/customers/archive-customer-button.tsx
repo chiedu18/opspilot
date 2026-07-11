@@ -57,7 +57,7 @@ export function ArchiveCustomerButton({
     <>
       <button
         aria-label={`Archive ${customerName}`}
-        className="rounded-lg border border-[#fecaca] px-3 py-2 text-sm font-semibold text-[#b91c1c] hover:bg-[#fef2f2] focus:outline-none focus:ring-2 focus:ring-[#fecaca]"
+        className="op-button op-button-danger-subtle px-3"
         onClick={() => setIsOpen(true)}
         type="button"
       >
@@ -69,7 +69,10 @@ export function ArchiveCustomerButton({
           <div
             aria-labelledby="archive-customer-title"
             aria-modal="true"
-            className="w-full max-w-md rounded-lg border border-[#d9e1ea] bg-white p-5 shadow-xl"
+            className="op-archive-dialog op-static-card w-full max-w-md rounded-lg p-5 shadow-[var(--shadow-modal)]"
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && !isSubmitting) setIsOpen(false);
+            }}
             role="dialog"
           >
             <div>
@@ -99,7 +102,8 @@ export function ArchiveCustomerButton({
 
             <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <button
-                className="rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+                autoFocus
+                className="op-button op-button-secondary px-3"
                 disabled={isSubmitting}
                 onClick={() => setIsOpen(false)}
                 type="button"
@@ -107,7 +111,9 @@ export function ArchiveCustomerButton({
                 Cancel
               </button>
               <button
-                className="rounded-lg bg-[#b91c1c] px-3 py-2 text-sm font-semibold text-white hover:bg-[#991b1b] disabled:cursor-not-allowed disabled:bg-[#fca5a5]"
+                aria-busy={isSubmitting || undefined}
+                className="op-button op-button-danger px-3"
+                data-pending={isSubmitting || undefined}
                 disabled={isSubmitting}
                 onClick={archiveCustomer}
                 type="button"

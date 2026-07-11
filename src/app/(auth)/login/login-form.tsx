@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 type LoginFormProps = {
   demoEmail: string;
   demoPassword: string;
@@ -9,11 +13,25 @@ export function LoginForm({
   demoPassword,
   errorMessage,
 }: LoginFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   return (
-    <form action="/api/session" className="mt-5 space-y-4" method="post">
+    <form
+      action="/api/session"
+      className="op-login-form mt-6 space-y-5"
+      method="post"
+      onSubmit={() => {
+        setIsSubmitting(true);
+      }}
+    >
+      <div className="op-login-access-note">
+        <span aria-hidden="true" />
+        <p>Demo access is prefilled for review.</p>
+      </div>
+
       {errorMessage ? (
         <div
-          className="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm text-[#991b1b]"
+          className="op-form-error rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm text-[#991b1b]"
           role="alert"
         >
           {errorMessage}
@@ -26,7 +44,7 @@ export function LoginForm({
         </label>
         <input
           autoComplete="email"
-          className="op-focus-ring op-interactive mt-1 w-full rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4]"
+          className="op-field mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none"
           defaultValue={demoEmail}
           id="email"
           name="email"
@@ -39,7 +57,7 @@ export function LoginForm({
         </label>
         <input
           autoComplete="current-password"
-          className="op-focus-ring op-interactive mt-1 w-full rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4]"
+          className="op-field mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none"
           defaultValue={demoPassword}
           id="password"
           name="password"
@@ -48,10 +66,13 @@ export function LoginForm({
       </div>
 
       <button
-        className="op-focus-ring op-pressable w-full rounded-lg bg-[#0f766e] px-4 py-2 text-sm font-semibold text-white hover:bg-[#115e59]"
+        aria-busy={isSubmitting || undefined}
+        className="op-button op-button-primary w-full px-4"
+        data-pending={isSubmitting || undefined}
+        disabled={isSubmitting}
         type="submit"
       >
-        Sign in
+        {isSubmitting ? "Opening workspace..." : "Sign in"}
       </button>
     </form>
   );

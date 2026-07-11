@@ -7,7 +7,7 @@ export default async function NewInventoryPage() {
   const { customers, owners, workItems } = await getInventoryCreatePageData();
 
   return (
-    <section className="space-y-5">
+    <section className="op-form-page space-y-7">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm font-medium text-[#0f766e]">Inventory</p>
@@ -18,7 +18,7 @@ export default async function NewInventoryPage() {
           </p>
         </div>
         <Link
-          className="rounded-lg border border-[#cbd5e1] px-4 py-2 text-center text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+          className="op-button op-button-secondary px-4"
           href="/inventory"
         >
           Back to inventory

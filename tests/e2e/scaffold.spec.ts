@@ -19,7 +19,7 @@ test.describe("scaffold routes", () => {
 
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(
-      page.getByRole("heading", { exact: true, name: "Dashboard" }),
+      page.getByRole("heading", { exact: true, name: "Command center" }),
     ).toBeVisible();
     await expect(
       page.getByRole("group", { name: "Active customers: 7" }),

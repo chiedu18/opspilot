@@ -34,7 +34,7 @@ const inputClass =
   "h-10 rounded-lg border border-[#cbd5e1] bg-white px-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4]";
 
 const actionLinkClass =
-  "rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]";
+  "op-button op-button-secondary px-3";
 
 export default async function IssuesPage({ searchParams }: IssuesPageProps) {
   const params = (await searchParams) ?? {};
@@ -73,8 +73,8 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
       : "Try a different search term, category, priority, status, customer, order, owner, resolution, or archive filter.";
 
   return (
-    <section className="space-y-5">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <section className="op-list-page space-y-7">
+      <div className="op-list-header flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-xl font-semibold">Issues</h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-[#64748b]">
@@ -83,7 +83,7 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
           </p>
         </div>
         <Link
-          className="rounded-lg bg-[#0f766e] px-4 py-2 text-center text-sm font-semibold text-white hover:bg-[#115e59] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+          className="op-button op-button-primary px-4"
           href="/issues/new"
           prefetch={false}
         >
@@ -100,8 +100,8 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
         </div>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+      <div className="op-list-metrics grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="op-static-card rounded-lg px-4 py-3">
           <div className="text-xs font-medium uppercase text-[#64748b]">
             Active records
           </div>
@@ -109,7 +109,7 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
             {formatIssueCount(metrics.tracked)}
           </div>
         </div>
-        <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+        <div className="op-static-card rounded-lg px-4 py-3">
           <div className="text-xs font-medium uppercase text-[#64748b]">
             Unresolved
           </div>
@@ -117,7 +117,7 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
             {formatIssueCount(metrics.unresolved)}
           </div>
         </div>
-        <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+        <div className="op-static-card rounded-lg px-4 py-3">
           <div className="text-xs font-medium uppercase text-[#64748b]">
             Blocked
           </div>
@@ -125,7 +125,7 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
             {formatIssueCount(metrics.blocked)}
           </div>
         </div>
-        <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+        <div className="op-static-card rounded-lg px-4 py-3">
           <div className="text-xs font-medium uppercase text-[#64748b]">
             High priority
           </div>
@@ -133,7 +133,7 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
             {formatIssueCount(metrics.highPriority)}
           </div>
         </div>
-        <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+        <div className="op-static-card rounded-lg px-4 py-3">
           <div className="text-xs font-medium uppercase text-[#64748b]">
             Archived
           </div>
@@ -143,7 +143,7 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-[#d9e1ea] bg-white">
+      <div className="op-list-surface overflow-hidden rounded-2xl border border-[#d9e1ea] bg-white">
         <div className="border-b border-[#d9e1ea] px-4 py-3">
           <form
             className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.3fr)_repeat(4,minmax(150px,1fr))] 2xl:grid-cols-[minmax(220px,1.3fr)_repeat(8,minmax(140px,1fr))_auto_auto] 2xl:items-end"
@@ -341,13 +341,13 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
               </select>
             </div>
             <button
-              className="h-10 rounded-lg bg-[#0f766e] px-4 text-sm font-semibold text-white hover:bg-[#115e59] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+              className="op-button op-button-primary h-10 px-4"
               type="submit"
             >
               Apply
             </button>
             <Link
-              className="flex h-10 items-center justify-center rounded-lg border border-[#cbd5e1] px-4 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+              className="op-button op-button-secondary h-10 px-4"
               href="/issues"
             >
               Reset
@@ -388,10 +388,13 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
                   const rowClass = needsAttention ? "bg-[#fff7ed]" : "";
 
                   return (
-                    <tr key={issue.id} className={`align-top ${rowClass}`}>
+                    <tr
+                      key={issue.id}
+                      className={`op-table-row align-top ${rowClass}`}
+                    >
                       <td className="px-4 py-3">
                         <Link
-                          className="font-semibold text-[#0f766e] hover:text-[#115e59]"
+                          className="op-text-link"
                           href={`/issues/${issue.id}`}
                         >
                           {issue.title}
@@ -412,10 +415,10 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
                       <td className="px-4 py-3">
                         <IssueCategoryBadge value={issue.category} />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" data-mobile-label="Priority">
                         <IssuePriorityBadge value={issue.priority} />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" data-mobile-label="Status">
                         <div className="flex flex-wrap gap-2">
                           <IssueStatusBadge value={issue.status} />
                           {isArchived ? (
@@ -437,7 +440,7 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
                         <div className="font-medium text-[#334155]">
                           {issue.customer ? (
                             <Link
-                              className="text-[#0f766e] hover:text-[#115e59]"
+                              className="op-text-link"
                               href={`/customers/${issue.customer.id}`}
                             >
                               {issue.customer.name}
@@ -449,7 +452,7 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
                         <div className="mt-1 text-xs text-[#64748b]">
                           {issue.workItem ? (
                             <Link
-                              className="text-[#0f766e] hover:text-[#115e59]"
+                              className="op-text-link"
                               href={`/orders/${issue.workItem.id}`}
                             >
                               {issue.workItem.title}
@@ -471,7 +474,7 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
                         {formatIssueCount(issue.counts.activityEvents)}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="op-row-actions flex flex-wrap gap-2">
                           <Link
                             aria-label={`View ${issue.title}`}
                             className={actionLinkClass}
@@ -507,6 +510,8 @@ export default async function IssuesPage({ searchParams }: IssuesPageProps) {
                 <tr>
                   <td className="px-4 py-4" colSpan={10}>
                     <EmptyState
+                      actionHref={hasFilters ? "/issues" : "/issues/new"}
+                      actionLabel={hasFilters ? "Reset filters" : "Create issue"}
                       description={emptyDescription}
                       title={emptyTitle}
                     />

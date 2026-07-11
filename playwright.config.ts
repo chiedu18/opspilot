@@ -15,7 +15,7 @@ export default defineConfig({
   },
   workers: 1,
   webServer: {
-    command: "npx next dev -H 127.0.0.1 -p 3000",
+    command: "npx next start -H 127.0.0.1 -p 3000",
     env: {
       ...process.env,
       OPSPILOT_DASHBOARD_REFERENCE_DATE: "2026-07-09T12:00:00.000Z",

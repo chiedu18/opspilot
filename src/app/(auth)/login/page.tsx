@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   DEMO_LOGIN_EMAIL,
   DEMO_LOGIN_PASSWORD,
@@ -30,14 +31,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = params?.error ? loginErrors[params.error] : undefined;
 
   return (
-    <main className="op-app-root min-h-screen px-5 py-8 text-[#18212f]">
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-5xl items-center gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
-        <section className="op-section-enter space-y-5">
+    <main className="op-login-page relative min-h-screen px-5 py-8 text-[#18212f]">
+      <div className="op-login-theme-control">
+        <ThemeToggle />
+      </div>
+      <div className="op-login-layout mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center gap-10 lg:grid-cols-[minmax(0,1fr)_440px]">
+        <section className="op-login-intro op-section-enter space-y-7">
           <div>
-            <p className="text-sm font-medium text-[#0f766e]">
+            <p className="op-header-eyebrow">
               Self-directed portfolio project
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-normal">
+            <h1 className="mt-3 max-w-xl text-5xl font-semibold tracking-[-0.055em] sm:text-6xl">
               OpsPilot demo workspace
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#475569]">
@@ -52,7 +56,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               (item) => (
                 <div
                   key={item}
-                  className="op-surface-muted rounded-lg px-4 py-3 text-sm font-medium text-[#334155]"
+                  className="op-login-signal rounded-2xl px-4 py-4 text-sm font-semibold"
                 >
                   {item}
                 </div>
@@ -61,7 +65,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         </section>
 
-        <section className="op-surface op-section-enter rounded-lg p-5">
+        <section className="op-login-card op-section-enter rounded-3xl p-6 sm:p-7">
           <div>
             <h2 className="text-xl font-semibold">Demo sign in</h2>
             <p className="mt-1 text-sm text-[#64748b]">

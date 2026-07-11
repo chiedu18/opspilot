@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { DashboardView } from "../../src/app/(app)/dashboard/page";
+import { DashboardView } from "../../src/features/dashboard/dashboard-view";
 import type { DashboardSummary } from "../../src/features/dashboard/dashboard-data";
 import { WorkItemStatus } from "../../src/generated/prisma/client";
 

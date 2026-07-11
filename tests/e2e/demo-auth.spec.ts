@@ -26,7 +26,7 @@ test.describe("demo auth", () => {
 
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(
-      page.getByRole("heading", { exact: true, name: "Dashboard" }),
+      page.getByRole("heading", { exact: true, name: "Command center" }),
     ).toBeVisible();
     await expect(page.getByText("Signed in as Olivia Chen")).toBeVisible();
   });

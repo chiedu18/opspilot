@@ -5,6 +5,7 @@ export default function DashboardLoading() {
     <LoadingState
       description="Loading metrics, work status, and urgent operations queues."
       title="Loading dashboard"
+      variant="dashboard"
     />
   );
 }

@@ -18,7 +18,7 @@ type CustomerDetailPageProps = {
 };
 
 const actionLinkClass =
-  "rounded-lg border border-[#cbd5e1] px-4 py-2 text-center text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]";
+  "op-button op-button-secondary px-4";
 
 export default async function CustomerDetailPage({
   params,
@@ -37,7 +37,7 @@ export default async function CustomerDetailPage({
   const isArchived = customer.status === "ARCHIVED" || Boolean(customer.archivedAt);
 
   return (
-    <section className="space-y-5">
+    <section className="op-record-page space-y-7">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-sm font-medium text-[#0f766e]">Customer record</p>

@@ -5,6 +5,7 @@ export default function ReportsLoading() {
     <LoadingState
       description="Loading report filters, preview rows, and export metadata."
       title="Loading reports"
+      variant="reports"
     />
   );
 }

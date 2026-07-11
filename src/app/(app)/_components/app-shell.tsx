@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { StatusBadge } from "@/components/ui/status-badge";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { DemoUser } from "@/lib/auth/demo-account";
 
 import { AppNavigation } from "./app-navigation";
@@ -11,18 +12,23 @@ export function AppShell({
   user,
 }: Readonly<{ children: React.ReactNode; user: DemoUser }>) {
   return (
-    <div className="op-app-root min-h-screen text-[#18212f]">
-      <div className="grid min-h-screen grid-cols-[minmax(0,1fr)] lg:grid-cols-[248px_minmax(0,1fr)]">
-        <aside className="op-shell-surface min-w-0 border-b border-[#d9e1ea] px-5 py-4 lg:border-b-0 lg:border-r">
+    <div className="op-app-root min-h-screen">
+      <div className="op-app-frame grid min-h-screen grid-cols-[minmax(0,1fr)] lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="op-app-sidebar min-w-0 px-5 py-5 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
           <div className="flex min-w-0 items-center justify-between gap-4 lg:block">
             <Link
               href="/dashboard"
-              className="op-focus-ring block rounded-md"
+              className="op-brand-link op-focus-ring block rounded-md"
             >
-              <div className="text-lg font-semibold">OpsPilot</div>
-              <div className="mt-1 text-sm text-[#64748b]">Operations desk</div>
+              <div className="flex items-center gap-3">
+                <span aria-hidden="true" className="op-brand-mark">OP</span>
+                <div>
+                  <div className="text-lg font-semibold tracking-[-0.03em]">OpsPilot</div>
+                  <div className="mt-0.5 text-xs">Operations command center</div>
+                </div>
+              </div>
             </Link>
-            <StatusBadge className="lg:mt-6" tone="demo">
+            <StatusBadge className="op-demo-badge lg:mt-8" tone="demo">
               Demo workspace
             </StatusBadge>
           </div>
@@ -30,30 +36,33 @@ export function AppShell({
           <AppNavigation />
         </aside>
 
-        <div className="min-w-0">
-          <header className="op-shell-surface border-b border-[#d9e1ea] px-5 py-4">
+        <div className="op-workspace min-w-0">
+          <header className="op-app-header px-5 py-5 sm:px-8">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-sm font-medium text-[#0f766e]">
+                <p className="op-header-eyebrow">
                   Self-directed portfolio project
                 </p>
-                <h1 className="mt-1 text-2xl font-semibold">
+                <h1 className="mt-1 text-2xl font-semibold tracking-[-0.035em]">
                   Internal operations dashboard
                 </h1>
               </div>
-              <div className="flex flex-col gap-2 text-sm text-[#64748b] sm:flex-row sm:items-center">
+              <div className="op-account-context flex flex-col gap-2 text-sm sm:flex-row sm:items-center">
                 <span>
                   Signed in as{" "}
                   <span className="font-medium text-[#334155]">
                     {user.name}
                   </span>
                 </span>
-                <SignOutButton />
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <SignOutButton />
+                </div>
               </div>
             </div>
           </header>
 
-          <main className="op-page-enter px-5 py-5">{children}</main>
+          <main className="op-page-enter px-5 py-7 sm:px-8 lg:px-10">{children}</main>
         </div>
       </div>
     </div>

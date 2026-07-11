@@ -13,7 +13,8 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div
-      className="op-section-enter rounded-lg border border-[#fecaca] bg-white p-5 text-[#18212f] shadow-[var(--shadow-surface)]"
+      aria-live="assertive"
+      className="op-error-surface op-section-enter rounded-lg border border-[#fecaca] bg-white p-5 text-[#18212f] shadow-[var(--shadow-surface)]"
       role="alert"
     >
       <div className="max-w-2xl">
@@ -23,7 +24,7 @@ export function ErrorState({
       </div>
       {onRetry ? (
         <button
-          className="op-focus-ring op-pressable mt-4 rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc]"
+          className="op-button op-button-secondary mt-4 px-3"
           onClick={onRetry}
           type="button"
         >

@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/customers", label: "Customers" },
-  { href: "/orders", label: "Orders" },
-  { href: "/inventory", label: "Inventory" },
-  { href: "/issues", label: "Issues" },
-  { href: "/reports", label: "Reports" },
+  { href: "/dashboard", label: "Dashboard", mark: "01" },
+  { href: "/customers", label: "Customers", mark: "02" },
+  { href: "/orders", label: "Orders", mark: "03" },
+  { href: "/inventory", label: "Inventory", mark: "04" },
+  { href: "/issues", label: "Issues", mark: "05" },
+  { href: "/reports", label: "Reports", mark: "06" },
 ];
 
 function isActiveRoute(pathname: string, href: string) {
@@ -22,7 +22,7 @@ export function AppNavigation() {
   return (
     <nav
       aria-label="Main navigation"
-      className="mt-5 flex min-w-0 max-w-full gap-2 overflow-x-auto pb-1 lg:block lg:space-y-1 lg:overflow-x-visible lg:pb-0"
+      className="op-main-navigation mt-6 grid min-w-0 max-w-full grid-cols-3 gap-2 lg:mt-8 lg:block lg:space-y-1"
     >
       {navItems.map((item) => {
         const isActive = isActiveRoute(pathname, item.href);
@@ -30,16 +30,13 @@ export function AppNavigation() {
         return (
           <Link
             aria-current={isActive ? "page" : undefined}
-            className={`op-nav-link op-focus-ring block min-w-fit rounded-lg border px-3 py-2 text-sm font-semibold lg:min-w-0 lg:pl-5 ${
-              isActive
-                ? "border-[#99f6e4] bg-[#ecfdf5] text-[#0f766e]"
-                : "border-transparent text-[#334155] hover:bg-[#edf3f7] hover:text-[#0f172a]"
-            }`}
+            className="op-nav-link op-focus-ring flex min-w-0 items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-semibold sm:text-sm lg:justify-start lg:gap-3 lg:px-3"
             data-active={isActive ? "true" : "false"}
             href={item.href}
             key={item.href}
           >
-            {item.label}
+            <span aria-hidden="true" className="op-nav-mark">{item.mark}</span>
+            <span>{item.label}</span>
           </Link>
         );
       })}

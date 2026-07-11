@@ -16,7 +16,7 @@ type EditCustomerPageProps = {
 };
 
 const actionLinkClass =
-  "rounded-lg border border-[#cbd5e1] px-4 py-2 text-center text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]";
+  "op-button op-button-secondary px-4";
 
 const editableStatus = (status: string): CustomerFormValues["status"] => {
   if (status === "ACTIVE" || status === "PROSPECT" || status === "PAUSED") {
@@ -43,7 +43,7 @@ export default async function EditCustomerPage({
 
   if (isArchived) {
     return (
-      <section className="space-y-5">
+      <section className="op-form-page space-y-7">
         <div>
           <p className="text-sm font-medium text-[#0f766e]">Customers</p>
           <h2 className="mt-1 text-xl font-semibold">Edit {customer.name}</h2>
@@ -60,7 +60,7 @@ export default async function EditCustomerPage({
   }
 
   return (
-    <section className="space-y-5">
+    <section className="op-form-page space-y-7">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm font-medium text-[#0f766e]">Customers</p>

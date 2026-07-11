@@ -28,7 +28,7 @@ type IssueDetailPageProps = {
 };
 
 const actionLinkClass =
-  "rounded-lg border border-[#cbd5e1] px-4 py-2 text-center text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]";
+  "op-button op-button-secondary px-4";
 
 const successMessage = ({
   closed,
@@ -81,7 +81,7 @@ export default async function IssueDetailPage({
   });
 
   return (
-    <section className="space-y-5">
+    <section className="op-record-page space-y-7">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-sm font-medium text-[#0f766e]">Issue record</p>
@@ -165,7 +165,7 @@ export default async function IssueDetailPage({
               <dd className="mt-1 text-sm font-medium text-[#334155]">
                 {issue.customer ? (
                   <Link
-                    className="text-[#0f766e] hover:text-[#115e59]"
+                    className="op-text-link"
                     href={`/customers/${issue.customer.id}`}
                   >
                     {issue.customer.name}
@@ -182,7 +182,7 @@ export default async function IssueDetailPage({
               <dd className="mt-1 text-sm font-medium text-[#334155]">
                 {issue.workItem ? (
                   <Link
-                    className="text-[#0f766e] hover:text-[#115e59]"
+                    className="op-text-link"
                     href={`/orders/${issue.workItem.id}`}
                   >
                     {issue.workItem.title}

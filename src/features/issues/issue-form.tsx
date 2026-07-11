@@ -140,6 +140,14 @@ export function IssueForm({
     return () => window.clearTimeout(readyTimer);
   }, []);
 
+  useEffect(() => {
+    const firstInvalidField = fieldNames.find((field) => fieldErrors[field]?.length);
+
+    if (firstInvalidField) {
+      document.getElementById(firstInvalidField)?.focus();
+    }
+  }, [fieldErrors]);
+
   const updateValue = <TField extends keyof IssueFormValues>(
     field: TField,
     value: IssueFormValues[TField],
@@ -190,7 +198,7 @@ export function IssueForm({
   const fieldError = (field: keyof IssueFormValues) => fieldErrors[field]?.[0];
 
   const inputClass = (field: keyof IssueFormValues) =>
-    `mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4] ${
+    `op-field mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none ${
       fieldError(field) ? "border-[#fca5a5]" : "border-[#cbd5e1]"
     }`;
 
@@ -242,7 +250,7 @@ export function IssueForm({
     <form className="space-y-5" onSubmit={onSubmit}>
       {formErrors.length > 0 ? (
         <div
-          className="rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm text-[#991b1b]"
+          className="op-form-error rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2 text-sm text-[#991b1b]"
           role="alert"
         >
           {formErrors.map((error) => (
@@ -537,13 +545,14 @@ export function IssueForm({
 
       <div className="flex flex-col-reverse gap-2 border-t border-[#d9e1ea] pt-4 sm:flex-row sm:justify-end">
         <Link
-          className="rounded-lg border border-[#cbd5e1] px-4 py-2 text-center text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+          className="op-button op-button-secondary px-4"
           href={cancelHref}
         >
           Cancel
         </Link>
         <button
-          className="rounded-lg bg-[#0f766e] px-4 py-2 text-sm font-semibold text-white hover:bg-[#115e59] disabled:cursor-not-allowed disabled:bg-[#94a3b8]"
+          className="op-button op-button-primary px-4"
+          data-pending={isSubmitting || undefined}
           disabled={isFormDisabled}
           type="submit"
         >

@@ -61,19 +61,17 @@ import {
   reportTypeMeta,
   reportTypeOptions,
 } from "@/features/reports/report-ui";
+import { ExportReportLink } from "@/features/reports/export-report-link";
 
 type ReportsPageProps = {
   searchParams?: Promise<ReportSearchParams>;
 };
 
 const inputClass =
-  "h-10 rounded-lg border border-[#cbd5e1] bg-white px-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4]";
+  "op-field h-10 rounded-lg border border-[#cbd5e1] bg-white px-3 text-sm outline-none";
 
 const actionLinkClass =
-  "rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]";
-
-const primaryLinkClass =
-  "rounded-lg bg-[#0f766e] px-4 py-2 text-center text-sm font-semibold text-white hover:bg-[#115e59] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]";
+  "op-button op-button-secondary px-3";
 
 type ReportFilterChoices = Awaited<ReturnType<typeof getReportFilterChoices>>;
 
@@ -132,14 +130,14 @@ const metricToneClass = (tone: string) => {
 
 function ReportTabs({ activeReport }: { activeReport: ReportData["report"] }) {
   return (
-    <div className="grid gap-3 lg:grid-cols-3">
+    <div className="op-report-tabs grid gap-3 lg:grid-cols-3">
       {reportTypeOptions.map((option) => {
         const isActive = option.value === activeReport;
 
         return (
           <Link
             aria-current={isActive ? "page" : undefined}
-            className={`rounded-lg border px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#99f6e4] ${
+            className={`op-report-tab op-tab-card rounded-lg border px-4 py-3 ${
               isActive
                 ? "border-[#0f766e] bg-[#f0fdfa]"
                 : "border-[#d9e1ea] bg-white hover:bg-[#f8fafc]"
@@ -162,10 +160,10 @@ function ReportTabs({ activeReport }: { activeReport: ReportData["report"] }) {
 
 function ReportMetrics({ report }: { report: ReportData }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div className="op-report-metrics grid gap-3 sm:grid-cols-3">
       {metricCardsForReport(report).map((metric) => (
         <div
-          className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3"
+          className="op-report-metric op-static-card rounded-lg px-4 py-3"
           key={metric.label}
         >
           <div className="text-xs font-medium uppercase text-[#64748b]">
@@ -611,7 +609,7 @@ function ReportFilters({
 }) {
   return (
     <form
-      className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.2fr)_repeat(4,minmax(150px,1fr))] 2xl:grid-cols-[minmax(220px,1.2fr)_repeat(8,minmax(140px,1fr))_auto_auto] 2xl:items-end"
+      className="op-report-filters grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.2fr)_repeat(4,minmax(150px,1fr))] 2xl:grid-cols-[minmax(220px,1.2fr)_repeat(8,minmax(140px,1fr))_auto_auto] 2xl:items-end"
       key={reportQueryToSearchParams(report.filters).toString()}
     >
       <input name="report" type="hidden" value={report.report} />
@@ -624,13 +622,13 @@ function ReportFilters({
         <InventoryFilters choices={choices} report={report} />
       ) : null}
       <button
-        className="h-10 rounded-lg bg-[#0f766e] px-4 text-sm font-semibold text-white hover:bg-[#115e59] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+        className="op-button op-button-primary h-10 px-4"
         type="submit"
       >
         Apply
       </button>
       <Link
-        className="flex h-10 items-center justify-center rounded-lg border border-[#cbd5e1] px-4 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+        className="op-button op-button-secondary h-10 px-4"
         href={reportHref(report.report)}
       >
         Reset
@@ -659,10 +657,10 @@ function OrdersReportTable({ report }: { report: OrdersReportData }) {
         </thead>
         <tbody className="divide-y divide-[#e2e8f0]">
           {report.rows.map((order) => (
-            <tr className="align-top" key={order.id}>
+            <tr className="op-table-row align-top" key={order.id}>
               <td className="px-4 py-3">
                 <Link
-                  className="font-semibold text-[#0f766e] hover:text-[#115e59]"
+                  className="op-text-link"
                   href={`/orders/${order.id}`}
                 >
                   {order.title}
@@ -739,7 +737,7 @@ function IssuesReportTable({ report }: { report: IssuesReportData }) {
         <tbody className="divide-y divide-[#e2e8f0]">
           {report.rows.map((issue) => (
             <tr
-              className={`align-top ${
+              className={`op-table-row align-top ${
                 !issue.isResolved &&
                 (issue.priority === "HIGH" ||
                   issue.priority === "URGENT" ||
@@ -751,7 +749,7 @@ function IssuesReportTable({ report }: { report: IssuesReportData }) {
             >
               <td className="px-4 py-3">
                 <Link
-                  className="font-semibold text-[#0f766e] hover:text-[#115e59]"
+                  className="op-text-link"
                   href={`/issues/${issue.id}`}
                 >
                   {issue.title}
@@ -778,7 +776,7 @@ function IssuesReportTable({ report }: { report: IssuesReportData }) {
                 <div className="font-medium text-[#334155]">
                   {issue.customer ? (
                     <Link
-                      className="text-[#0f766e] hover:text-[#115e59]"
+                      className="op-text-link"
                       href={`/customers/${issue.customer.id}`}
                     >
                       {issue.customer.name}
@@ -790,7 +788,7 @@ function IssuesReportTable({ report }: { report: IssuesReportData }) {
                 <div className="mt-1 text-xs text-[#64748b]">
                   {issue.workItem ? (
                     <Link
-                      className="text-[#0f766e] hover:text-[#115e59]"
+                      className="op-text-link"
                       href={`/orders/${issue.workItem.id}`}
                     >
                       {issue.workItem.title}
@@ -836,10 +834,10 @@ function InventoryReportTable({ report }: { report: InventoryReportData }) {
         </thead>
         <tbody className="divide-y divide-[#e2e8f0]">
           {report.rows.map((item) => (
-            <tr className="align-top" key={item.id}>
+            <tr className="op-table-row align-top" key={item.id}>
               <td className="px-4 py-3">
                 <Link
-                  className="font-semibold text-[#0f766e] hover:text-[#115e59]"
+                  className="op-text-link"
                   href={`/inventory/${item.id}`}
                 >
                   {item.name}
@@ -874,7 +872,7 @@ function InventoryReportTable({ report }: { report: InventoryReportData }) {
                 <div className="font-medium text-[#334155]">
                   {item.customer ? (
                     <Link
-                      className="text-[#0f766e] hover:text-[#115e59]"
+                      className="op-text-link"
                       href={`/customers/${item.customer.id}`}
                     >
                       {item.customer.name}
@@ -886,7 +884,7 @@ function InventoryReportTable({ report }: { report: InventoryReportData }) {
                 <div className="mt-1 text-xs text-[#64748b]">
                   {item.workItem ? (
                     <Link
-                      className="text-[#0f766e] hover:text-[#115e59]"
+                      className="op-text-link"
                       href={`/orders/${item.workItem.id}`}
                     >
                       {item.workItem.title}
@@ -920,6 +918,8 @@ function ReportTable({ report }: { report: ReportData }) {
     return (
       <div className="px-4 py-4">
         <EmptyState
+          actionHref="/reports"
+          actionLabel="Reset report filters"
           description="Try changing filters, or export the current view to get a header-only CSV with the selected column contract."
           title="No report rows"
         />
@@ -944,7 +944,7 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
 
   if (!filters.success) {
     return (
-      <section className="space-y-5">
+      <section className="op-reports-page space-y-7">
         <div>
           <h2 className="text-xl font-semibold">Reports</h2>
           <p className="mt-1 max-w-3xl text-sm text-[#64748b]">
@@ -969,29 +969,31 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
   const meta = reportTypeMeta(report.report);
 
   return (
-    <section className="space-y-5">
+    <section className="op-reports-page space-y-7">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h2 className="text-xl font-semibold">Reports</h2>
+          <p className="op-header-eyebrow">Analysis workspace</p>
+          <h2 className="mt-2 text-xl font-semibold">Reports</h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-[#64748b]">
             Filtered demo operations reports for orders, issues, inventory, and
             spreadsheet-friendly CSV export.
           </p>
         </div>
-        <Link className={primaryLinkClass} href={exportHref(report)}>
-          {isReportEmpty(report) ? "Export header-only CSV" : "Export CSV"}
-        </Link>
+        <ExportReportLink
+          href={exportHref(report)}
+          label={isReportEmpty(report) ? "Export header-only CSV" : "Export CSV"}
+        />
       </div>
 
       <ReportTabs activeReport={report.report} />
       <ReportMetrics report={report} />
 
-      <div className="overflow-hidden rounded-lg border border-[#d9e1ea] bg-white">
-        <div className="border-b border-[#d9e1ea] px-4 py-3">
+      <div className="op-report-surface overflow-hidden rounded-lg border border-[#d9e1ea] bg-white">
+        <div className="op-report-filter-deck border-b border-[#d9e1ea] px-4 py-3">
           <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h3 className="font-semibold">{meta.label} report filters</h3>
-              <p className="mt-1 text-sm text-[#64748b]">
+              <p className="op-filter-summary mt-1 text-sm text-[#64748b]">
                 {getReportSummaryLabel(report)}
               </p>
             </div>
@@ -1002,7 +1004,7 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
           <ReportFilters choices={choices} report={report} />
         </div>
 
-        <div className="flex items-center justify-between gap-4 border-b border-[#d9e1ea] px-4 py-3">
+        <div className="op-report-preview-header flex items-center justify-between gap-4 border-b border-[#d9e1ea] px-4 py-3">
           <div>
             <h3 className="font-semibold">{meta.label} report preview</h3>
             <p className="mt-1 text-sm text-[#64748b]">

@@ -33,7 +33,7 @@ const inputClass =
   "h-10 rounded-lg border border-[#cbd5e1] bg-white px-3 text-sm outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#99f6e4]";
 
 const actionLinkClass =
-  "rounded-lg border border-[#cbd5e1] px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]";
+  "op-button op-button-secondary px-3";
 
 export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   const params = (await searchParams) ?? {};
@@ -65,8 +65,8 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   );
 
   return (
-    <section className="space-y-5">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <section className="op-list-page space-y-7">
+      <div className="op-list-header flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-xl font-semibold">Orders</h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-[#64748b]">
@@ -75,7 +75,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
           </p>
         </div>
         <Link
-          className="rounded-lg bg-[#0f766e] px-4 py-2 text-center text-sm font-semibold text-white hover:bg-[#115e59] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+          className="op-button op-button-primary px-4"
           href="/orders/new"
           prefetch={false}
         >
@@ -92,14 +92,14 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
         </div>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+      <div className="op-list-metrics grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="op-static-card rounded-lg px-4 py-3">
           <div className="text-xs font-medium uppercase text-[#64748b]">
             Open
           </div>
           <div className="mt-1 text-lg font-semibold">{metrics.open}</div>
         </div>
-        <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+        <div className="op-static-card rounded-lg px-4 py-3">
           <div className="text-xs font-medium uppercase text-[#64748b]">
             Overdue
           </div>
@@ -107,13 +107,13 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
             {metrics.overdue}
           </div>
         </div>
-        <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+        <div className="op-static-card rounded-lg px-4 py-3">
           <div className="text-xs font-medium uppercase text-[#64748b]">
             Blocked
           </div>
           <div className="mt-1 text-lg font-semibold">{metrics.blocked}</div>
         </div>
-        <div className="rounded-lg border border-[#d9e1ea] bg-white px-4 py-3">
+        <div className="op-static-card rounded-lg px-4 py-3">
           <div className="text-xs font-medium uppercase text-[#64748b]">
             Archived
           </div>
@@ -121,7 +121,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-[#d9e1ea] bg-white">
+      <div className="op-list-surface overflow-hidden rounded-2xl border border-[#d9e1ea] bg-white">
         <div className="border-b border-[#d9e1ea] px-4 py-3">
           <form
             className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.3fr)_repeat(4,minmax(150px,1fr))] 2xl:grid-cols-[minmax(220px,1.3fr)_repeat(7,minmax(140px,1fr))_auto_auto] 2xl:items-end"
@@ -297,13 +297,13 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
               </select>
             </div>
             <button
-              className="h-10 rounded-lg bg-[#0f766e] px-4 text-sm font-semibold text-white hover:bg-[#115e59] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+              className="op-button op-button-primary h-10 px-4"
               type="submit"
             >
               Apply
             </button>
             <Link
-              className="flex h-10 items-center justify-center rounded-lg border border-[#cbd5e1] px-4 text-sm font-semibold text-[#334155] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#99f6e4]"
+              className="op-button op-button-secondary h-10 px-4"
               href="/orders"
             >
               Reset
@@ -338,10 +338,10 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                   const isArchived = Boolean(order.archivedAt);
 
                   return (
-                    <tr key={order.id} className="align-top">
+                    <tr key={order.id} className="op-table-row align-top">
                       <td className="px-4 py-3">
                         <Link
-                          className="font-semibold text-[#0f766e] hover:text-[#115e59]"
+                          className="op-text-link"
                           href={`/orders/${order.id}`}
                         >
                           {order.title}
@@ -394,10 +394,10 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                       <td className="px-4 py-3 text-[#475569]">
                         {formatOrderCurrency(order.estimatedValueCents)}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" data-mobile-label="Status">
                         <OrderStatusBadge value={order.status} />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" data-mobile-label="Priority">
                         <OrderPriorityBadge value={order.priority} />
                       </td>
                       <td className="px-4 py-3 text-xs text-[#475569]">
@@ -408,7 +408,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                         {formatOrderDate(order.updatedAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="op-row-actions flex flex-wrap gap-2">
                           <Link
                             aria-label={`View ${order.title}`}
                             className={actionLinkClass}
@@ -444,6 +444,8 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                 <tr>
                   <td className="px-4 py-4" colSpan={10}>
                     <EmptyState
+                      actionHref="/orders"
+                      actionLabel="Reset filters"
                       description="Try a different search term, status, owner, customer, due-date, or archive filter."
                       title="No matching orders"
                     />

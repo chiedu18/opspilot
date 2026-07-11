@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { signInAsDemoUser } from "./helpers/auth";
 
 const demoRoutes = [
-  { heading: "Dashboard", path: "/dashboard" },
+  { heading: "Command center", path: "/dashboard" },
   { heading: "Customers", path: "/customers" },
   { heading: "Orders", path: "/orders" },
   { heading: "Inventory", path: "/inventory" },
@@ -163,5 +163,44 @@ test.describe("core demo regression", () => {
     await expect(page.getByLabel("Resolution notes")).toBeVisible();
     await expect(page.getByRole("button", { name: "Create issue" }))
       .toBeVisible();
+  });
+
+  test("supports theme round trips, keyboard focus, and reduced motion", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+    await page.goto("/login");
+
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+    const lightModeToggle = page.getByRole("button", {
+      name: "Switch to light mode",
+    });
+    await lightModeToggle.focus();
+    await expect(lightModeToggle).toBeFocused();
+    await expect(lightModeToggle).toHaveCSS("outline-style", "solid");
+    await lightModeToggle.press("Enter");
+
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.getByRole("button", { name: "Switch to dark mode" }).press("Enter");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+    await signInAsDemoUser(page);
+    await expect(page.locator(".op-command-hero")).toHaveCSS(
+      "animation-name",
+      "none",
+    );
+
+    await page.setViewportSize({ height: 844, width: 390 });
+    await page.goto("/customers");
+    await expectNoPageWideOverflow(page);
+    await expect(page.locator(".op-main-navigation")).toHaveCSS(
+      "display",
+      "grid",
+    );
+    await expect(page.locator(".op-list-surface tbody tr").first()).toHaveCSS(
+      "display",
+      "grid",
+    );
   });
 });

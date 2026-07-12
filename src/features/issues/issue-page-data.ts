@@ -1,6 +1,7 @@
 import { IssueStatus, Priority } from "@/generated/prisma/client";
 
 import { getPrismaClient } from "@/lib/db/prisma";
+import { requireSandboxWorkspaceId } from "@/lib/sandbox/session";
 import { validateInput, type ValidationResult } from "@/lib/validation/request";
 
 import {
@@ -105,6 +106,7 @@ const highPriorityValues: Priority[] = [Priority.URGENT, Priority.HIGH];
 
 export const getIssueListPageData = async (filters: IssueListQuery) => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
 
   const [issues, metricIssues, archivedCount, customers, workItems, owners] =
     await Promise.all([
@@ -112,7 +114,7 @@ export const getIssueListPageData = async (filters: IssueListQuery) => {
         orderBy: issueListOrderBy,
         select: issueSelect,
         take: 200,
-        where: buildIssueWhereInput(filters),
+        where: { AND: [{ workspaceId }, buildIssueWhereInput(filters)] },
       }),
       prisma.issue.findMany({
         select: {
@@ -120,16 +122,18 @@ export const getIssueListPageData = async (filters: IssueListQuery) => {
           status: true,
         },
         where: {
+          workspaceId,
           archivedAt: null,
         },
       }),
       prisma.issue.count({
         where: {
+          workspaceId,
           archivedAt: { not: null },
         },
       }),
-      listIssueCustomerChoices(prisma),
-      listIssueWorkItemChoices(prisma),
+      listIssueCustomerChoices(prisma, workspaceId),
+      listIssueWorkItemChoices(prisma, workspaceId),
       listIssueOwnerChoices(prisma),
     ]);
 
@@ -159,9 +163,10 @@ export const getIssueListPageData = async (filters: IssueListQuery) => {
 
 export const getIssueCreatePageData = async () => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
   const [customers, workItems, owners] = await Promise.all([
-    listIssueCustomerChoices(prisma),
-    listIssueWorkItemChoices(prisma),
+    listIssueCustomerChoices(prisma, workspaceId),
+    listIssueWorkItemChoices(prisma, workspaceId),
     listIssueOwnerChoices(prisma),
   ]);
 
@@ -170,9 +175,10 @@ export const getIssueCreatePageData = async () => {
 
 export const getIssueDetail = async (id: string) => {
   const prisma = getPrismaClient();
-  const issue = await prisma.issue.findUnique({
+  const workspaceId = await requireSandboxWorkspaceId();
+  const issue = await prisma.issue.findFirst({
     select: issueSelect,
-    where: { id },
+    where: { id, workspaceId },
   });
 
   return issue ? toIssueApi(issue) : null;
@@ -180,13 +186,14 @@ export const getIssueDetail = async (id: string) => {
 
 export const getIssueEditPageData = async (id: string) => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
   const [issueRecord, customers, workItems, owners] = await Promise.all([
-    prisma.issue.findUnique({
+    prisma.issue.findFirst({
       select: issueSelect,
-      where: { id },
+      where: { id, workspaceId },
     }),
-    listIssueCustomerChoices(prisma),
-    listIssueWorkItemChoices(prisma),
+    listIssueCustomerChoices(prisma, workspaceId),
+    listIssueWorkItemChoices(prisma, workspaceId),
     listIssueOwnerChoices(prisma),
   ]);
 

@@ -129,7 +129,7 @@ export const toCustomerApi = (customer: CustomerRecord) => ({
 export const createCustomerData = ({
   ownerId,
   ...input
-}: CustomerCreateInput): Prisma.CustomerCreateInput => ({
+}: CustomerCreateInput): Omit<Prisma.CustomerCreateInput, "workspace"> => ({
   ...input,
   ...ownerRelation(ownerId),
 });

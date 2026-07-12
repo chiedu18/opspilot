@@ -1,4 +1,5 @@
 import { apiError, apiInternalError, apiOk } from "@/lib/api/responses";
+import { getDemoSession } from "@/lib/auth/demo-session";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -8,6 +9,10 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
+  const session = await getDemoSession();
+  if (!session) {
+    return apiError("UNAUTHORIZED", "Sign in to view demo data.", { status: 401 });
+  }
   try {
     const prisma = getPrismaClient();
     const [
@@ -19,11 +24,11 @@ export async function GET() {
       activityEvents,
     ] = await prisma.$transaction([
       prisma.teamMember.count(),
-      prisma.customer.count(),
-      prisma.workItem.count(),
-      prisma.inventoryItem.count(),
-      prisma.issue.count(),
-      prisma.activityEvent.count(),
+      prisma.customer.count({ where: { workspaceId: session.workspaceId } }),
+      prisma.workItem.count({ where: { workspaceId: session.workspaceId } }),
+      prisma.inventoryItem.count({ where: { workspaceId: session.workspaceId } }),
+      prisma.issue.count({ where: { workspaceId: session.workspaceId } }),
+      prisma.activityEvent.count({ where: { workspaceId: session.workspaceId } }),
     ]);
 
     return apiOk({

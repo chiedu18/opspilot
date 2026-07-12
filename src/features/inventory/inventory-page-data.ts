@@ -1,6 +1,7 @@
 import { InventoryStatus } from "@/generated/prisma/client";
 
 import { getPrismaClient } from "@/lib/db/prisma";
+import { requireSandboxWorkspaceId } from "@/lib/sandbox/session";
 import { validateInput, type ValidationResult } from "@/lib/validation/request";
 
 import {
@@ -112,6 +113,7 @@ export const getInventoryListPageData = async (
   filters: InventoryListQuery,
 ) => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
 
   const [
     inventoryItems,
@@ -125,7 +127,7 @@ export const getInventoryListPageData = async (
       orderBy: inventoryListOrderBy,
       select: inventorySelect,
       take: 200,
-      where: buildInventoryWhereInput(filters),
+      where: { AND: [{ workspaceId }, buildInventoryWhereInput(filters)] },
     }),
     prisma.inventoryItem.findMany({
       select: {
@@ -135,16 +137,18 @@ export const getInventoryListPageData = async (
         status: true,
       },
       where: {
+        workspaceId,
         archivedAt: null,
       },
     }),
     prisma.inventoryItem.count({
       where: {
+        workspaceId,
         archivedAt: { not: null },
       },
     }),
-    listInventoryCustomerChoices(prisma),
-    listInventoryWorkItemChoices(prisma),
+    listInventoryCustomerChoices(prisma, workspaceId),
+    listInventoryWorkItemChoices(prisma, workspaceId),
     listInventoryOwnerChoices(prisma),
   ]);
 
@@ -172,9 +176,10 @@ export const getInventoryListPageData = async (
 
 export const getInventoryCreatePageData = async () => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
   const [customers, workItems, owners] = await Promise.all([
-    listInventoryCustomerChoices(prisma),
-    listInventoryWorkItemChoices(prisma),
+    listInventoryCustomerChoices(prisma, workspaceId),
+    listInventoryWorkItemChoices(prisma, workspaceId),
     listInventoryOwnerChoices(prisma),
   ]);
 
@@ -183,9 +188,10 @@ export const getInventoryCreatePageData = async () => {
 
 export const getInventoryDetail = async (id: string) => {
   const prisma = getPrismaClient();
-  const inventoryItem = await prisma.inventoryItem.findUnique({
+  const workspaceId = await requireSandboxWorkspaceId();
+  const inventoryItem = await prisma.inventoryItem.findFirst({
     select: inventorySelect,
-    where: { id },
+    where: { id, workspaceId },
   });
 
   return inventoryItem ? toInventoryApi(inventoryItem) : null;
@@ -193,13 +199,14 @@ export const getInventoryDetail = async (id: string) => {
 
 export const getInventoryEditPageData = async (id: string) => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
   const [inventoryRecord, customers, workItems, owners] = await Promise.all([
-    prisma.inventoryItem.findUnique({
+    prisma.inventoryItem.findFirst({
       select: inventorySelect,
-      where: { id },
+      where: { id, workspaceId },
     }),
-    listInventoryCustomerChoices(prisma),
-    listInventoryWorkItemChoices(prisma),
+    listInventoryCustomerChoices(prisma, workspaceId),
+    listInventoryWorkItemChoices(prisma, workspaceId),
     listInventoryOwnerChoices(prisma),
   ]);
 

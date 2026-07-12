@@ -85,7 +85,7 @@ export const teamMembers: Prisma.TeamMemberCreateManyInput[] = [
   },
 ];
 
-export const customers: Prisma.CustomerCreateManyInput[] = [
+export const customers: Omit<Prisma.CustomerCreateManyInput, "workspaceId">[] = [
   {
     id: "cust-northstar-outfitters",
     name: "Northstar Outfitters Demo",
@@ -209,7 +209,7 @@ export const customers: Prisma.CustomerCreateManyInput[] = [
   },
 ];
 
-export const workItems: Prisma.WorkItemCreateManyInput[] = [
+export const workItems: Omit<Prisma.WorkItemCreateManyInput, "workspaceId">[] = [
   {
     id: "work-northstar-spring-launch",
     title: "Spring launch campaign setup",
@@ -496,7 +496,7 @@ export const workItems: Prisma.WorkItemCreateManyInput[] = [
   },
 ];
 
-export const inventoryItems: Prisma.InventoryItemCreateManyInput[] = [
+export const inventoryItems: Omit<Prisma.InventoryItemCreateManyInput, "workspaceId">[] = [
   {
     id: "inv-northstar-router-kit",
     name: "Northstar router kit",
@@ -870,7 +870,7 @@ export const inventoryItems: Prisma.InventoryItemCreateManyInput[] = [
   },
 ];
 
-export const issues: Prisma.IssueCreateManyInput[] = [
+export const issues: Omit<Prisma.IssueCreateManyInput, "workspaceId">[] = [
   {
     id: "issue-northstar-device-delay",
     title: "Device shipment delay",
@@ -1193,7 +1193,7 @@ export const issues: Prisma.IssueCreateManyInput[] = [
   },
 ];
 
-export const activityEvents: Prisma.ActivityEventCreateManyInput[] = [
+export const activityEvents: Omit<Prisma.ActivityEventCreateManyInput, "workspaceId">[] = [
   {
     id: "activity-northstar-rollout-created",
     action: ActivityAction.CREATED,

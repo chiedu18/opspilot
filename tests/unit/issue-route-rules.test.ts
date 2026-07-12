@@ -96,9 +96,6 @@ describe("issue route rules", () => {
         findFirst: vi
           .fn()
           .mockResolvedValue({ id: "work-a", customerId: "cust-b" }),
-        findUnique: vi
-          .fn()
-          .mockResolvedValue({ id: "work-a", customerId: "cust-b" }),
       },
     } as unknown as PrismaClient;
 

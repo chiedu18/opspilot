@@ -6,6 +6,7 @@ import {
   parseReportFilters,
 } from "@/features/reports/report-data";
 import { isDatabaseConfigurationError } from "@/lib/db/prisma";
+import { getDemoSession } from "@/lib/auth/demo-session";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -28,6 +29,10 @@ const reportFilename = (report: string, rowCount: number) => {
 };
 
 export async function GET(request: NextRequest) {
+  const session = await getDemoSession();
+  if (!session) {
+    return new Response("Sign in to export your demo data.", { status: 401 });
+  }
   const filters = parseReportFilters(reportParamsFromRequest(request));
 
   if (!filters.success) {
@@ -38,7 +43,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const report = await getReportData(filters.data, { limit: 1000 });
+    const report = await getReportData(filters.data, {
+      limit: 1000,
+      workspaceId: session.workspaceId,
+    });
     const csv = buildReportCsv(report);
     const filename = reportFilename(report.report, report.rows.length);
 

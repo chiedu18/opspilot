@@ -1,6 +1,7 @@
 import { CustomerStatus } from "@/generated/prisma/client";
 
 import { getPrismaClient } from "@/lib/db/prisma";
+import { requireSandboxWorkspaceId } from "@/lib/sandbox/session";
 import { validateInput, type ValidationResult } from "@/lib/validation/request";
 
 import {
@@ -42,6 +43,7 @@ export const readCustomerSearchParam = readSearchParam;
 
 export const getCustomerListPageData = async (filters: CustomerListQuery) => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
 
   const [customers, activeCount, prospectCount, pausedCount, archivedCount] =
     await Promise.all([
@@ -49,28 +51,32 @@ export const getCustomerListPageData = async (filters: CustomerListQuery) => {
         orderBy: customerListOrderBy,
         select: customerSelect,
         take: 100,
-        where: buildCustomerWhereInput(filters),
+        where: { AND: [{ workspaceId }, buildCustomerWhereInput(filters)] },
       }),
       prisma.customer.count({
         where: {
+          workspaceId,
           archivedAt: null,
           status: CustomerStatus.ACTIVE,
         },
       }),
       prisma.customer.count({
         where: {
+          workspaceId,
           archivedAt: null,
           status: CustomerStatus.PROSPECT,
         },
       }),
       prisma.customer.count({
         where: {
+          workspaceId,
           archivedAt: null,
           status: CustomerStatus.PAUSED,
         },
       }),
       prisma.customer.count({
         where: {
+          workspaceId,
           status: CustomerStatus.ARCHIVED,
         },
       }),
@@ -96,9 +102,10 @@ export const getCustomerOwnerChoices = async () => {
 
 export const getCustomerDetail = async (id: string) => {
   const prisma = getPrismaClient();
-  const customer = await prisma.customer.findUnique({
+  const workspaceId = await requireSandboxWorkspaceId();
+  const customer = await prisma.customer.findFirst({
     select: customerSelect,
-    where: { id },
+    where: { id, workspaceId },
   });
 
   return customer ? toCustomerApi(customer) : null;

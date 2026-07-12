@@ -5,6 +5,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { DemoUser } from "@/lib/auth/demo-account";
 
 import { AppNavigation } from "./app-navigation";
+import { ResetDemoButton } from "./reset-demo-button";
 import { SignOutButton } from "./sign-out-button";
 
 export function AppShell({
@@ -29,7 +30,7 @@ export function AppShell({
               </div>
             </Link>
             <StatusBadge className="op-demo-badge lg:mt-8" tone="demo">
-              Demo workspace
+              Private demo workspace
             </StatusBadge>
           </div>
 
@@ -54,8 +55,12 @@ export function AppShell({
                     {user.name}
                   </span>
                 </span>
+                <span className="text-xs text-[#64748b] dark:text-[#a9b9cc]">
+                  Resets automatically after 24 hours
+                </span>
                 <div className="flex items-center gap-2">
                   <ThemeToggle />
+                  <ResetDemoButton />
                   <SignOutButton />
                 </div>
               </div>

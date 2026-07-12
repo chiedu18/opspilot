@@ -24,6 +24,7 @@ import {
   apiOk,
   apiValidationError,
 } from "@/lib/api/responses";
+import { getDemoSession } from "@/lib/auth/demo-session";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -48,6 +49,8 @@ const listFiltersFromRequest = (request: NextRequest) => ({
 });
 
 export async function GET(request: NextRequest) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const filters = validateInput(
     orderListQuerySchema,
     listFiltersFromRequest(request),
@@ -64,7 +67,7 @@ export async function GET(request: NextRequest) {
       orderBy: orderListOrderBy,
       select: orderSelect,
       take: 100,
-      where: buildOrderWhereInput(filters.data, referenceDate),
+      where: { AND: [{ workspaceId: session.workspaceId }, buildOrderWhereInput(filters.data, referenceDate)] },
     });
 
     return apiOk({
@@ -89,6 +92,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const validated = await validateJsonBody(request, orderCreateSchema);
 
   if (!validated.success) {
@@ -99,7 +104,7 @@ export async function POST(request: Request) {
     const prisma = getPrismaClient();
 
     if (
-      !(await isAvailableOrderCustomer(prisma, validated.data.customerId))
+      !(await isAvailableOrderCustomer(prisma, validated.data.customerId, session.workspaceId))
     ) {
       return apiInvalidOrderCustomer();
     }
@@ -109,7 +114,10 @@ export async function POST(request: Request) {
     }
 
     const order = await prisma.workItem.create({
-      data: createOrderData(validated.data),
+      data: {
+        ...createOrderData(validated.data),
+        workspace: { connect: { id: session.workspaceId } },
+      },
       select: orderSelect,
     });
 

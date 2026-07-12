@@ -16,6 +16,8 @@ import {
   workItems,
 } from "./seed-data";
 
+const CANONICAL_WORKSPACE_ID = "workspace-canonical-demo";
+
 const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
@@ -28,31 +30,66 @@ const prisma = new PrismaClient({
 
 const resetDemoSeedData = async () => {
   await prisma.$transaction(async (tx) => {
-    await tx.activityEvent.deleteMany({
-      where: { id: { in: demoSeedIds.activityEvents } },
-    });
-    await tx.issue.deleteMany({
-      where: { id: { in: demoSeedIds.issues } },
-    });
-    await tx.inventoryItem.deleteMany({
-      where: { id: { in: demoSeedIds.inventoryItems } },
-    });
-    await tx.workItem.deleteMany({
-      where: { id: { in: demoSeedIds.workItems } },
-    });
-    await tx.customer.deleteMany({
-      where: { id: { in: demoSeedIds.customers } },
-    });
-    await tx.teamMember.deleteMany({
-      where: { id: { in: demoSeedIds.teamMembers } },
+    await tx.sandboxWorkspace.upsert({
+      where: { id: CANONICAL_WORKSPACE_ID },
+      create: { id: CANONICAL_WORKSPACE_ID, kind: "CANONICAL" },
+      update: { kind: "CANONICAL", expiresAt: null },
     });
 
-    await tx.teamMember.createMany({ data: teamMembers });
-    await tx.customer.createMany({ data: customers });
-    await tx.workItem.createMany({ data: workItems });
-    await tx.inventoryItem.createMany({ data: inventoryItems });
-    await tx.issue.createMany({ data: issues });
-    await tx.activityEvent.createMany({ data: activityEvents });
+    await tx.activityEvent.deleteMany({
+      where: { workspaceId: CANONICAL_WORKSPACE_ID },
+    });
+    await tx.issue.deleteMany({
+      where: { workspaceId: CANONICAL_WORKSPACE_ID },
+    });
+    await tx.inventoryItem.deleteMany({
+      where: { workspaceId: CANONICAL_WORKSPACE_ID },
+    });
+    await tx.workItem.deleteMany({
+      where: { workspaceId: CANONICAL_WORKSPACE_ID },
+    });
+    await tx.customer.deleteMany({
+      where: { workspaceId: CANONICAL_WORKSPACE_ID },
+    });
+
+    for (const teamMember of teamMembers) {
+      await tx.teamMember.upsert({
+        where: { id: teamMember.id },
+        create: teamMember,
+        update: teamMember,
+      });
+    }
+
+    await tx.customer.createMany({
+      data: customers.map((customer) => ({
+        ...customer,
+        workspaceId: CANONICAL_WORKSPACE_ID,
+      })),
+    });
+    await tx.workItem.createMany({
+      data: workItems.map((workItem) => ({
+        ...workItem,
+        workspaceId: CANONICAL_WORKSPACE_ID,
+      })),
+    });
+    await tx.inventoryItem.createMany({
+      data: inventoryItems.map((inventoryItem) => ({
+        ...inventoryItem,
+        workspaceId: CANONICAL_WORKSPACE_ID,
+      })),
+    });
+    await tx.issue.createMany({
+      data: issues.map((issue) => ({
+        ...issue,
+        workspaceId: CANONICAL_WORKSPACE_ID,
+      })),
+    });
+    await tx.activityEvent.createMany({
+      data: activityEvents.map((activityEvent) => ({
+        ...activityEvent,
+        workspaceId: CANONICAL_WORKSPACE_ID,
+      })),
+    });
   });
 };
 
@@ -61,19 +98,19 @@ const readSeededCounts = async () => ({
     where: { id: { in: demoSeedIds.teamMembers } },
   }),
   customers: await prisma.customer.count({
-    where: { id: { in: demoSeedIds.customers } },
+    where: { workspaceId: CANONICAL_WORKSPACE_ID },
   }),
   workItems: await prisma.workItem.count({
-    where: { id: { in: demoSeedIds.workItems } },
+    where: { workspaceId: CANONICAL_WORKSPACE_ID },
   }),
   inventoryItems: await prisma.inventoryItem.count({
-    where: { id: { in: demoSeedIds.inventoryItems } },
+    where: { workspaceId: CANONICAL_WORKSPACE_ID },
   }),
   issues: await prisma.issue.count({
-    where: { id: { in: demoSeedIds.issues } },
+    where: { workspaceId: CANONICAL_WORKSPACE_ID },
   }),
   activityEvents: await prisma.activityEvent.count({
-    where: { id: { in: demoSeedIds.activityEvents } },
+    where: { workspaceId: CANONICAL_WORKSPACE_ID },
   }),
 });
 

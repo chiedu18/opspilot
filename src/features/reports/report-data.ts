@@ -37,6 +37,7 @@ import {
   toOrderApi,
 } from "@/features/orders/order-data";
 import { getPrismaClient } from "@/lib/db/prisma";
+import { requireSandboxWorkspaceId } from "@/lib/sandbox/session";
 import { validateInput, type ValidationResult } from "@/lib/validation/request";
 
 import {
@@ -260,12 +261,13 @@ const getOrdersReport = async (
   filters: OrdersReportQuery,
   limit: number,
   referenceDate: Date,
+  workspaceId: string,
 ): Promise<OrdersReportData> => {
   const orders = await prisma.workItem.findMany({
     orderBy: workItemReportOrderBy,
     select: orderSelect,
     take: limit,
-    where: buildOrdersReportWhereInput(filters, referenceDate),
+    where: { AND: [{ workspaceId }, buildOrdersReportWhereInput(filters, referenceDate)] },
   });
   const rows = sortOrdersForList(orders, referenceDate).map((order) =>
     toOrderApi(order, referenceDate),
@@ -292,12 +294,13 @@ const getIssuesReport = async (
   prisma: PrismaClient,
   filters: IssuesReportQuery,
   limit: number,
+  workspaceId: string,
 ): Promise<IssuesReportData> => {
   const issues = await prisma.issue.findMany({
     orderBy: issueReportOrderBy,
     select: issueSelect,
     take: limit,
-    where: buildIssuesReportWhereInput(filters),
+    where: { AND: [{ workspaceId }, buildIssuesReportWhereInput(filters)] },
   });
   const rows = sortIssuesForList(issues).map(toIssueApi);
   const unresolvedRows = rows.filter((issue) => !issue.isResolved);
@@ -320,12 +323,13 @@ const getInventoryReport = async (
   prisma: PrismaClient,
   filters: InventoryReportQuery,
   limit: number,
+  workspaceId: string,
 ): Promise<InventoryReportData> => {
   const inventoryItems = await prisma.inventoryItem.findMany({
     orderBy: inventoryReportOrderBy,
     select: inventorySelect,
     take: limit,
-    where: buildInventoryReportWhereInput(filters),
+    where: { AND: [{ workspaceId }, buildInventoryReportWhereInput(filters)] },
   });
   const rows = sortInventoryForList(
     filterInventoryByLowStockState(inventoryItems, filters.lowStockState),
@@ -345,31 +349,33 @@ const getInventoryReport = async (
 
 export const getReportData = async (
   filters: ReportQuery,
-  options: { limit?: number; referenceDate?: Date } = {},
+  options: { limit?: number; referenceDate?: Date; workspaceId?: string } = {},
 ): Promise<ReportData> => {
   const prisma = getPrismaClient();
   const limit = options.limit ?? 250;
   const referenceDate = options.referenceDate ?? new Date();
+  const workspaceId = options.workspaceId ?? (await requireSandboxWorkspaceId());
 
   if (filters.report === "issues") {
-    return getIssuesReport(prisma, filters, limit);
+    return getIssuesReport(prisma, filters, limit, workspaceId);
   }
 
   if (filters.report === "inventory") {
-    return getInventoryReport(prisma, filters, limit);
+    return getInventoryReport(prisma, filters, limit, workspaceId);
   }
 
-  return getOrdersReport(prisma, filters, limit, referenceDate);
+  return getOrdersReport(prisma, filters, limit, referenceDate, workspaceId);
 };
 
 export const getReportFilterChoices = async (report: ReportType) => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
 
   if (report === "issues") {
     const [customers, owners, workItems] = await Promise.all([
-      listIssueCustomerChoices(prisma),
+      listIssueCustomerChoices(prisma, workspaceId),
       listIssueOwnerChoices(prisma),
-      listIssueWorkItemChoices(prisma),
+      listIssueWorkItemChoices(prisma, workspaceId),
     ]);
 
     return { customers, owners, workItems };
@@ -377,16 +383,16 @@ export const getReportFilterChoices = async (report: ReportType) => {
 
   if (report === "inventory") {
     const [customers, owners, workItems] = await Promise.all([
-      listInventoryCustomerChoices(prisma),
+      listInventoryCustomerChoices(prisma, workspaceId),
       listInventoryOwnerChoices(prisma),
-      listInventoryWorkItemChoices(prisma),
+      listInventoryWorkItemChoices(prisma, workspaceId),
     ]);
 
     return { customers, owners, workItems };
   }
 
   const [customers, owners] = await Promise.all([
-    listOrderCustomerChoices(prisma),
+    listOrderCustomerChoices(prisma, workspaceId),
     listOrderOwnerChoices(prisma),
   ]);
 

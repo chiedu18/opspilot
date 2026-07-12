@@ -18,6 +18,7 @@ import {
   apiOk,
   apiValidationError,
 } from "@/lib/api/responses";
+import { getDemoSession } from "@/lib/auth/demo-session";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -34,13 +35,15 @@ type OrderRouteContext = {
 };
 
 export async function GET(_request: Request, { params }: OrderRouteContext) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
 
   try {
     const prisma = getPrismaClient();
-    const order = await prisma.workItem.findUnique({
+    const order = await prisma.workItem.findFirst({
       select: orderSelect,
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!order) {
@@ -64,6 +67,8 @@ export async function GET(_request: Request, { params }: OrderRouteContext) {
 }
 
 export async function PATCH(request: Request, { params }: OrderRouteContext) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
   const validated = await validateJsonBody(request, orderUpdateSchema);
 
@@ -73,7 +78,7 @@ export async function PATCH(request: Request, { params }: OrderRouteContext) {
 
   try {
     const prisma = getPrismaClient();
-    const existingOrder = await prisma.workItem.findUnique({
+    const existingOrder = await prisma.workItem.findFirst({
       select: {
         archivedAt: true,
         completedAt: true,
@@ -81,7 +86,7 @@ export async function PATCH(request: Request, { params }: OrderRouteContext) {
         id: true,
         status: true,
       },
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!existingOrder) {
@@ -95,7 +100,7 @@ export async function PATCH(request: Request, { params }: OrderRouteContext) {
     if (
       validated.data.customerId &&
       validated.data.customerId !== existingOrder.customerId &&
-      !(await isAvailableOrderCustomer(prisma, validated.data.customerId))
+      !(await isAvailableOrderCustomer(prisma, validated.data.customerId, session.workspaceId))
     ) {
       return apiInvalidOrderCustomer();
     }
@@ -133,16 +138,18 @@ export async function DELETE(
   _request: Request,
   { params }: OrderRouteContext,
 ) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
 
   try {
     const prisma = getPrismaClient();
-    const existingOrder = await prisma.workItem.findUnique({
+    const existingOrder = await prisma.workItem.findFirst({
       select: {
         archivedAt: true,
         id: true,
       },
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!existingOrder) {

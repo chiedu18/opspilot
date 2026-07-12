@@ -13,6 +13,7 @@ import {
   apiOk,
   apiValidationError,
 } from "@/lib/api/responses";
+import { getDemoSession } from "@/lib/auth/demo-session";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -32,13 +33,15 @@ export async function GET(
   _request: Request,
   { params }: InventoryRouteContext,
 ) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
 
   try {
     const prisma = getPrismaClient();
-    const inventoryItem = await prisma.inventoryItem.findUnique({
+    const inventoryItem = await prisma.inventoryItem.findFirst({
       select: inventorySelect,
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!inventoryItem) {
@@ -65,6 +68,8 @@ export async function PATCH(
   request: Request,
   { params }: InventoryRouteContext,
 ) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
   const validated = await validateJsonBody(request, inventoryUpdateSchema);
 
@@ -74,7 +79,7 @@ export async function PATCH(
 
   try {
     const prisma = getPrismaClient();
-    const existingInventoryItem = await prisma.inventoryItem.findUnique({
+    const existingInventoryItem = await prisma.inventoryItem.findFirst({
       select: {
         archivedAt: true,
         customerId: true,
@@ -84,7 +89,7 @@ export async function PATCH(
         status: true,
         workItemId: true,
       },
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!existingInventoryItem) {
@@ -98,7 +103,7 @@ export async function PATCH(
     const relationshipError = await validateInventoryRelationships(
       prisma,
       validated.data,
-      { existing: existingInventoryItem },
+      { existing: existingInventoryItem, workspaceId: session.workspaceId },
     );
 
     if (relationshipError) {
@@ -131,16 +136,18 @@ export async function DELETE(
   _request: Request,
   { params }: InventoryRouteContext,
 ) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
 
   try {
     const prisma = getPrismaClient();
-    const existingInventoryItem = await prisma.inventoryItem.findUnique({
+    const existingInventoryItem = await prisma.inventoryItem.findFirst({
       select: {
         archivedAt: true,
         id: true,
       },
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!existingInventoryItem) {

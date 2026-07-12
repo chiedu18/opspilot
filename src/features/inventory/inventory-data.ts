@@ -315,7 +315,7 @@ export const createInventoryData = ({
   ownerId,
   workItemId,
   ...input
-}: InventoryCreateInput): Prisma.InventoryItemCreateInput => ({
+}: InventoryCreateInput): Omit<Prisma.InventoryItemCreateInput, "workspace"> => ({
   ...input,
   location: input.location ?? null,
   notes: input.notes ?? null,
@@ -360,10 +360,12 @@ export const isActiveInventoryOwner = async (
 export const isAvailableInventoryCustomer = async (
   prisma: PrismaClient,
   customerId: string,
+  workspaceId: string,
 ) => {
   const customer = await prisma.customer.findFirst({
     select: { id: true },
     where: {
+      workspaceId,
       archivedAt: null,
       id: customerId,
       status: { not: CustomerStatus.ARCHIVED },
@@ -376,6 +378,7 @@ export const isAvailableInventoryCustomer = async (
 export const findAvailableInventoryWorkItem = (
   prisma: PrismaClient,
   workItemId: string,
+  workspaceId: string,
 ) =>
   prisma.workItem.findFirst({
     select: {
@@ -383,6 +386,7 @@ export const findAvailableInventoryWorkItem = (
       id: true,
     },
     where: {
+      workspaceId,
       archivedAt: null,
       id: workItemId,
     },
@@ -391,31 +395,35 @@ export const findAvailableInventoryWorkItem = (
 export const findInventoryByReferenceCode = (
   prisma: PrismaClient,
   referenceCode: string,
+  workspaceId: string,
   excludeId?: string,
 ) =>
   prisma.inventoryItem.findFirst({
     select: { id: true },
     where: {
+      workspaceId,
       referenceCode,
       ...(excludeId ? { id: { not: excludeId } } : {}),
     },
   });
 
-export const listInventoryCustomerChoices = (prisma: PrismaClient) =>
+export const listInventoryCustomerChoices = (prisma: PrismaClient, workspaceId: string) =>
   prisma.customer.findMany({
     orderBy: { name: "asc" },
     select: inventoryCustomerSelect,
     where: {
+      workspaceId,
       archivedAt: null,
       status: { not: CustomerStatus.ARCHIVED },
     },
   });
 
-export const listInventoryWorkItemChoices = (prisma: PrismaClient) =>
+export const listInventoryWorkItemChoices = (prisma: PrismaClient, workspaceId: string) =>
   prisma.workItem.findMany({
     orderBy: [{ dueDate: "asc" }, { title: "asc" }],
     select: inventoryWorkItemSelect,
     where: {
+      workspaceId,
       archivedAt: null,
     },
   });

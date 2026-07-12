@@ -333,7 +333,7 @@ export const createOrderData = ({
   customerId,
   ownerId,
   ...input
-}: OrderCreateInput): Prisma.WorkItemCreateInput => ({
+}: OrderCreateInput): Omit<Prisma.WorkItemCreateInput, "workspace"> => ({
   ...input,
   completedAt:
     input.status === WorkItemStatus.COMPLETED ? new Date() : null,
@@ -356,10 +356,12 @@ export const updateOrderData = (
 export const isAvailableOrderCustomer = async (
   prisma: PrismaClient,
   customerId: string,
+  workspaceId: string,
 ) => {
   const customer = await prisma.customer.findFirst({
     select: { id: true },
     where: {
+      workspaceId,
       archivedAt: null,
       id: customerId,
       status: { not: CustomerStatus.ARCHIVED },
@@ -385,11 +387,12 @@ export const isActiveOrderOwner = async (
   return Boolean(owner);
 };
 
-export const listOrderCustomerChoices = (prisma: PrismaClient) =>
+export const listOrderCustomerChoices = (prisma: PrismaClient, workspaceId: string) =>
   prisma.customer.findMany({
     orderBy: { name: "asc" },
     select: orderCustomerSelect,
     where: {
+      workspaceId,
       archivedAt: null,
       status: { not: CustomerStatus.ARCHIVED },
     },

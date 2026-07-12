@@ -18,6 +18,7 @@ import {
   apiOk,
   apiValidationError,
 } from "@/lib/api/responses";
+import { getDemoSession } from "@/lib/auth/demo-session";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -34,13 +35,15 @@ type CustomerRouteContext = {
 };
 
 export async function GET(_request: Request, { params }: CustomerRouteContext) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
 
   try {
     const prisma = getPrismaClient();
-    const customer = await prisma.customer.findUnique({
+    const customer = await prisma.customer.findFirst({
       select: customerSelect,
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!customer) {
@@ -67,6 +70,8 @@ export async function PATCH(
   request: Request,
   { params }: CustomerRouteContext,
 ) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
   const validated = await validateJsonBody(request, customerUpdateSchema);
 
@@ -76,12 +81,12 @@ export async function PATCH(
 
   try {
     const prisma = getPrismaClient();
-    const existingCustomer = await prisma.customer.findUnique({
+    const existingCustomer = await prisma.customer.findFirst({
       select: {
         archivedAt: true,
         id: true,
       },
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!existingCustomer) {
@@ -135,16 +140,18 @@ export async function DELETE(
   _request: Request,
   { params }: CustomerRouteContext,
 ) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
 
   try {
     const prisma = getPrismaClient();
-    const existingCustomer = await prisma.customer.findUnique({
+    const existingCustomer = await prisma.customer.findFirst({
       select: {
         archivedAt: true,
         id: true,
       },
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!existingCustomer) {

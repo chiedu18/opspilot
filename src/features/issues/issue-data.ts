@@ -346,7 +346,7 @@ export const createIssueData = ({
   ownerId,
   workItemId,
   ...input
-}: IssueCreateInput): Prisma.IssueCreateInput => ({
+}: IssueCreateInput): Omit<Prisma.IssueCreateInput, "workspace"> => ({
   ...input,
   resolutionNotes: input.resolutionNotes ?? null,
   resolvedAt: isResolvedIssueStatus(input.status) ? new Date() : null,
@@ -389,10 +389,12 @@ export const isActiveIssueOwner = async (
 export const isAvailableIssueCustomer = async (
   prisma: PrismaClient,
   customerId: string,
+  workspaceId: string,
 ) => {
   const customer = await prisma.customer.findFirst({
     select: { id: true },
     where: {
+      workspaceId,
       archivedAt: null,
       id: customerId,
       status: { not: CustomerStatus.ARCHIVED },
@@ -405,6 +407,7 @@ export const isAvailableIssueCustomer = async (
 export const findAvailableIssueWorkItem = (
   prisma: PrismaClient,
   workItemId: string,
+  workspaceId: string,
 ) =>
   prisma.workItem.findFirst({
     select: {
@@ -412,26 +415,29 @@ export const findAvailableIssueWorkItem = (
       id: true,
     },
     where: {
+      workspaceId,
       archivedAt: null,
       id: workItemId,
     },
   });
 
-export const listIssueCustomerChoices = (prisma: PrismaClient) =>
+export const listIssueCustomerChoices = (prisma: PrismaClient, workspaceId: string) =>
   prisma.customer.findMany({
     orderBy: { name: "asc" },
     select: issueCustomerSelect,
     where: {
+      workspaceId,
       archivedAt: null,
       status: { not: CustomerStatus.ARCHIVED },
     },
   });
 
-export const listIssueWorkItemChoices = (prisma: PrismaClient) =>
+export const listIssueWorkItemChoices = (prisma: PrismaClient, workspaceId: string) =>
   prisma.workItem.findMany({
     orderBy: [{ dueDate: "asc" }, { title: "asc" }],
     select: issueWorkItemSelect,
     where: {
+      workspaceId,
       archivedAt: null,
     },
   });

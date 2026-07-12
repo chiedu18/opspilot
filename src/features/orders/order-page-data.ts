@@ -1,6 +1,7 @@
 import { WorkItemStatus } from "@/generated/prisma/client";
 
 import { getPrismaClient } from "@/lib/db/prisma";
+import { requireSandboxWorkspaceId } from "@/lib/sandbox/session";
 import { validateInput, type ValidationResult } from "@/lib/validation/request";
 
 import {
@@ -70,6 +71,7 @@ const includeCurrentOwnerChoice = (
 
 export const getOrderListPageData = async (filters: OrderListQuery) => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
   const referenceDate = new Date();
   const today = startOfUtcDay(referenceDate);
 
@@ -86,10 +88,11 @@ export const getOrderListPageData = async (filters: OrderListQuery) => {
       orderBy: orderListOrderBy,
       select: orderSelect,
       take: 100,
-      where: buildOrderWhereInput(filters, referenceDate),
+      where: { AND: [{ workspaceId }, buildOrderWhereInput(filters, referenceDate)] },
     }),
     prisma.workItem.count({
       where: {
+        workspaceId,
         archivedAt: null,
         status: {
           in: [
@@ -102,6 +105,7 @@ export const getOrderListPageData = async (filters: OrderListQuery) => {
     }),
     prisma.workItem.count({
       where: {
+        workspaceId,
         archivedAt: null,
         dueDate: { lt: today },
         status: {
@@ -111,16 +115,18 @@ export const getOrderListPageData = async (filters: OrderListQuery) => {
     }),
     prisma.workItem.count({
       where: {
+        workspaceId,
         archivedAt: null,
         status: WorkItemStatus.BLOCKED,
       },
     }),
     prisma.workItem.count({
       where: {
+        workspaceId,
         archivedAt: { not: null },
       },
     }),
-    listOrderCustomerChoices(prisma),
+    listOrderCustomerChoices(prisma, workspaceId),
     listOrderOwnerChoices(prisma),
   ]);
 
@@ -141,8 +147,9 @@ export const getOrderListPageData = async (filters: OrderListQuery) => {
 
 export const getOrderCreatePageData = async () => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
   const [customers, owners] = await Promise.all([
-    listOrderCustomerChoices(prisma),
+    listOrderCustomerChoices(prisma, workspaceId),
     listOrderOwnerChoices(prisma),
   ]);
 
@@ -151,9 +158,10 @@ export const getOrderCreatePageData = async () => {
 
 export const getOrderDetail = async (id: string) => {
   const prisma = getPrismaClient();
-  const order = await prisma.workItem.findUnique({
+  const workspaceId = await requireSandboxWorkspaceId();
+  const order = await prisma.workItem.findFirst({
     select: orderSelect,
-    where: { id },
+    where: { id, workspaceId },
   });
 
   return order ? toOrderApi(order) : null;
@@ -161,12 +169,13 @@ export const getOrderDetail = async (id: string) => {
 
 export const getOrderEditPageData = async (id: string) => {
   const prisma = getPrismaClient();
+  const workspaceId = await requireSandboxWorkspaceId();
   const [orderRecord, customers, owners] = await Promise.all([
-    prisma.workItem.findUnique({
+    prisma.workItem.findFirst({
       select: orderSelect,
-      where: { id },
+      where: { id, workspaceId },
     }),
-    listOrderCustomerChoices(prisma),
+    listOrderCustomerChoices(prisma, workspaceId),
     listOrderOwnerChoices(prisma),
   ]);
 

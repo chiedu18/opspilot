@@ -85,7 +85,7 @@ export async function POST(request: Request) {
         user: DEMO_USER,
       });
 
-  setDemoSessionCookie(response);
+  await setDemoSessionCookie(response);
 
   return response;
 }

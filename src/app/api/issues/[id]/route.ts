@@ -13,6 +13,7 @@ import {
   apiOk,
   apiValidationError,
 } from "@/lib/api/responses";
+import { getDemoSession } from "@/lib/auth/demo-session";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -29,13 +30,15 @@ type IssueRouteContext = {
 };
 
 export async function GET(_request: Request, { params }: IssueRouteContext) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
 
   try {
     const prisma = getPrismaClient();
-    const issue = await prisma.issue.findUnique({
+    const issue = await prisma.issue.findFirst({
       select: issueSelect,
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!issue) {
@@ -59,6 +62,8 @@ export async function GET(_request: Request, { params }: IssueRouteContext) {
 }
 
 export async function PATCH(request: Request, { params }: IssueRouteContext) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
   const validated = await validateJsonBody(request, issueUpdateSchema);
 
@@ -68,7 +73,7 @@ export async function PATCH(request: Request, { params }: IssueRouteContext) {
 
   try {
     const prisma = getPrismaClient();
-    const existingIssue = await prisma.issue.findUnique({
+    const existingIssue = await prisma.issue.findFirst({
       select: {
         archivedAt: true,
         customerId: true,
@@ -79,7 +84,7 @@ export async function PATCH(request: Request, { params }: IssueRouteContext) {
         status: true,
         workItemId: true,
       },
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!existingIssue) {
@@ -93,7 +98,7 @@ export async function PATCH(request: Request, { params }: IssueRouteContext) {
     const relationshipError = await validateIssueRelationships(
       prisma,
       validated.data,
-      { existing: existingIssue },
+      { existing: existingIssue, workspaceId: session.workspaceId },
     );
 
     if (relationshipError) {
@@ -126,16 +131,18 @@ export async function DELETE(
   _request: Request,
   { params }: IssueRouteContext,
 ) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const { id } = await params;
 
   try {
     const prisma = getPrismaClient();
-    const existingIssue = await prisma.issue.findUnique({
+    const existingIssue = await prisma.issue.findFirst({
       select: {
         archivedAt: true,
         id: true,
       },
-      where: { id },
+      where: { id, workspaceId: session.workspaceId },
     });
 
     if (!existingIssue) {

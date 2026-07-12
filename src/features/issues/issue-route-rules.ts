@@ -23,6 +23,7 @@ type IssueRelationshipInput = IssueCreateInput | IssueUpdateInput;
 
 type ValidateIssueRelationshipsOptions = {
   existing?: IssueRelationshipSnapshot;
+  workspaceId?: string;
 };
 
 const readEffectiveRelation = (
@@ -36,6 +37,7 @@ export const validateIssueRelationships = async (
   options: ValidateIssueRelationshipsOptions = {},
 ) => {
   const existing = options.existing;
+  const { workspaceId } = options;
   const effectiveStatus = input.status ?? existing?.status;
   const effectiveResolutionNotes =
     input.resolutionNotes === undefined
@@ -71,13 +73,13 @@ export const validateIssueRelationships = async (
   if (
     input.customerId &&
     input.customerId !== existing?.customerId &&
-    !(await isAvailableIssueCustomer(prisma, input.customerId))
+    !(await isAvailableIssueCustomer(prisma, input.customerId, workspaceId ?? ""))
   ) {
     return apiInvalidIssueCustomer();
   }
 
   if (input.workItemId && input.workItemId !== existing?.workItemId) {
-    const workItem = await findAvailableIssueWorkItem(prisma, input.workItemId);
+    const workItem = await findAvailableIssueWorkItem(prisma, input.workItemId, workspaceId ?? "");
 
     if (!workItem) {
       return apiInvalidIssueWorkItem();
@@ -85,12 +87,12 @@ export const validateIssueRelationships = async (
   }
 
   if (effectiveWorkItemId && effectiveCustomerId) {
-    const workItem = await prisma.workItem.findUnique({
+    const workItem = await prisma.workItem.findFirst({
       select: {
         customerId: true,
         id: true,
       },
-      where: { id: effectiveWorkItemId },
+      where: { id: effectiveWorkItemId, ...(workspaceId ? { workspaceId } : {}) },
     });
 
     if (!workItem) {

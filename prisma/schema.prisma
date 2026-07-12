@@ -117,6 +117,45 @@ enum ActivityAction {
   @@map("activity_action")
 }
 
+enum SandboxWorkspaceKind {
+  CANONICAL
+  SANDBOX
+
+  @@map("sandbox_workspace_kind")
+}
+
+model SandboxWorkspace {
+  id             String               @id @default(cuid())
+  kind           SandboxWorkspaceKind @default(SANDBOX)
+  expiresAt      DateTime?            @map("expires_at")
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+  sessions       DemoSession[]
+  customers      Customer[]
+  workItems      WorkItem[]
+  inventoryItems InventoryItem[]
+  issues         Issue[]
+  activityEvents ActivityEvent[]
+
+  @@index([expiresAt])
+  @@index([kind])
+  @@map("sandbox_workspaces")
+}
+
+model DemoSession {
+  id          String           @id @default(cuid())
+  tokenHash   String           @unique @map("token_hash")
+  workspaceId String           @map("workspace_id")
+  workspace   SandboxWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime         @map("expires_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@index([expiresAt])
+  @@index([workspaceId])
+  @@map("demo_sessions")
+}
+
 model TeamMember {
   id             String           @id @default(cuid())
   name           String
@@ -139,18 +178,20 @@ model TeamMember {
 }
 
 model Customer {
-  id             String          @id @default(cuid())
+  id             String           @id @default(cuid())
   name           String
-  contactName    String          @map("contact_name")
+  contactName    String           @map("contact_name")
   email          String?
   phone          String?
-  status         CustomerStatus  @default(PROSPECT)
-  ownerId        String?         @map("owner_id")
-  owner          TeamMember?     @relation("CustomerOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  status         CustomerStatus   @default(PROSPECT)
+  ownerId        String?          @map("owner_id")
+  owner          TeamMember?      @relation("CustomerOwner", fields: [ownerId], references: [id], onDelete: SetNull)
   notes          String?
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
-  archivedAt     DateTime?       @map("archived_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  archivedAt     DateTime?        @map("archived_at")
+  workspaceId    String           @map("workspace_id")
+  workspace      SandboxWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workItems      WorkItem[]
   inventoryItems InventoryItem[]
   issues         Issue[]
@@ -159,26 +200,29 @@ model Customer {
   @@index([status])
   @@index([ownerId])
   @@index([archivedAt])
+  @@index([workspaceId])
   @@map("customers")
 }
 
 model WorkItem {
-  id                  String          @id @default(cuid())
+  id                  String           @id @default(cuid())
   title               String
-  kind                WorkItemKind    @default(ORDER)
-  status              WorkItemStatus  @default(DRAFT)
-  priority            Priority        @default(MEDIUM)
-  dueDate             DateTime?       @map("due_date")
-  completedAt         DateTime?       @map("completed_at")
-  estimatedValueCents Int?            @map("estimated_value_cents")
+  kind                WorkItemKind     @default(ORDER)
+  status              WorkItemStatus   @default(DRAFT)
+  priority            Priority         @default(MEDIUM)
+  dueDate             DateTime?        @map("due_date")
+  completedAt         DateTime?        @map("completed_at")
+  estimatedValueCents Int?             @map("estimated_value_cents")
   notes               String?
-  customerId          String          @map("customer_id")
-  customer            Customer        @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  ownerId             String?         @map("owner_id")
-  owner               TeamMember?     @relation("WorkItemOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  createdAt           DateTime        @default(now()) @map("created_at")
-  updatedAt           DateTime        @updatedAt @map("updated_at")
-  archivedAt          DateTime?       @map("archived_at")
+  customerId          String           @map("customer_id")
+  customer            Customer         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  ownerId             String?          @map("owner_id")
+  owner               TeamMember?      @relation("WorkItemOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+  archivedAt          DateTime?        @map("archived_at")
+  workspaceId         String           @map("workspace_id")
+  workspace           SandboxWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   inventoryItems      InventoryItem[]
   issues              Issue[]
   activityEvents      ActivityEvent[]
@@ -189,6 +233,7 @@ model WorkItem {
   @@index([priority])
   @@index([dueDate])
   @@index([archivedAt])
+  @@index([workspaceId])
   @@map("work_items")
 }
 
@@ -200,7 +245,7 @@ model InventoryItem {
   quantity          Int               @default(1)
   lowStockThreshold Int               @default(0) @map("low_stock_threshold")
   location          String?
-  referenceCode     String?           @unique @map("reference_code")
+  referenceCode     String?           @map("reference_code")
   notes             String?
   ownerId           String?           @map("owner_id")
   owner             TeamMember?       @relation("InventoryItemOwner", fields: [ownerId], references: [id], onDelete: SetNull)
@@ -211,35 +256,41 @@ model InventoryItem {
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime          @updatedAt @map("updated_at")
   archivedAt        DateTime?         @map("archived_at")
+  workspaceId       String            @map("workspace_id")
+  workspace         SandboxWorkspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   activityEvents    ActivityEvent[]
 
+  @@unique([workspaceId, referenceCode])
   @@index([category])
   @@index([status])
   @@index([ownerId])
   @@index([customerId])
   @@index([workItemId])
   @@index([archivedAt])
+  @@index([workspaceId])
   @@map("inventory_items")
 }
 
 model Issue {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   title           String
   category        IssueCategory
-  priority        Priority        @default(MEDIUM)
-  status          IssueStatus     @default(OPEN)
+  priority        Priority         @default(MEDIUM)
+  status          IssueStatus      @default(OPEN)
   description     String
-  resolutionNotes String?         @map("resolution_notes")
-  resolvedAt      DateTime?       @map("resolved_at")
-  ownerId         String?         @map("owner_id")
-  owner           TeamMember?     @relation("IssueOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  customerId      String?         @map("customer_id")
-  customer        Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  workItemId      String?         @map("work_item_id")
-  workItem        WorkItem?       @relation(fields: [workItemId], references: [id], onDelete: SetNull)
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
-  archivedAt      DateTime?       @map("archived_at")
+  resolutionNotes String?          @map("resolution_notes")
+  resolvedAt      DateTime?        @map("resolved_at")
+  ownerId         String?          @map("owner_id")
+  owner           TeamMember?      @relation("IssueOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  customerId      String?          @map("customer_id")
+  customer        Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  workItemId      String?          @map("work_item_id")
+  workItem        WorkItem?        @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  archivedAt      DateTime?        @map("archived_at")
+  workspaceId     String           @map("workspace_id")
+  workspace       SandboxWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   activityEvents  ActivityEvent[]
 
   @@index([category])
@@ -249,25 +300,28 @@ model Issue {
   @@index([customerId])
   @@index([workItemId])
   @@index([archivedAt])
+  @@index([workspaceId])
   @@map("issues")
 }
 
 model ActivityEvent {
-  id              String         @id @default(cuid())
+  id              String           @id @default(cuid())
   action          ActivityAction
   summary         String
   metadata        Json?
-  actorId         String?        @map("actor_id")
-  actor           TeamMember?    @relation("ActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
-  customerId      String?        @map("customer_id")
-  customer        Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  workItemId      String?        @map("work_item_id")
-  workItem        WorkItem?      @relation(fields: [workItemId], references: [id], onDelete: SetNull)
-  inventoryItemId String?        @map("inventory_item_id")
-  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
-  issueId         String?        @map("issue_id")
-  issue           Issue?         @relation(fields: [issueId], references: [id], onDelete: SetNull)
-  createdAt       DateTime       @default(now()) @map("created_at")
+  actorId         String?          @map("actor_id")
+  actor           TeamMember?      @relation("ActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
+  customerId      String?          @map("customer_id")
+  customer        Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  workItemId      String?          @map("work_item_id")
+  workItem        WorkItem?        @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  inventoryItemId String?          @map("inventory_item_id")
+  inventoryItem   InventoryItem?   @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+  issueId         String?          @map("issue_id")
+  issue           Issue?           @relation(fields: [issueId], references: [id], onDelete: SetNull)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  workspaceId     String           @map("workspace_id")
+  workspace       SandboxWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([action])
   @@index([actorId])
@@ -276,5 +330,6 @@ model ActivityEvent {
   @@index([inventoryItemId])
   @@index([issueId])
   @@index([createdAt])
+  @@index([workspaceId])
   @@map("activity_events")
 }

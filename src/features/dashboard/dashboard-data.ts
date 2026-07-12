@@ -23,6 +23,7 @@ import {
   startOfUtcDay,
 } from "@/features/orders/order-data";
 import { getPrismaClient } from "@/lib/db/prisma";
+import { requireSandboxWorkspaceId } from "@/lib/sandbox/session";
 
 export const dashboardCustomerSelect = {
   archivedAt: true,
@@ -382,23 +383,29 @@ export const buildDashboardSummaryFromRecords = (
   };
 };
 
-export const getDashboardSummary = async ({
-  prisma = getPrismaClient(),
-  referenceDate = new Date(),
-  urgentLimit = 5,
-}: DashboardSummaryOptions & { prisma?: PrismaClient } = {}) => {
+export const getDashboardSummary = async (
+  options: DashboardSummaryOptions & { prisma?: PrismaClient; workspaceId?: string } = {},
+) => {
+  const prisma = options.prisma ?? getPrismaClient();
+  const referenceDate = options.referenceDate ?? new Date();
+  const urgentLimit = options.urgentLimit ?? 5;
+  const workspaceId = options.workspaceId ?? (await requireSandboxWorkspaceId());
   const [customers, workItems, inventoryItems, issues] = await Promise.all([
     prisma.customer.findMany({
       select: dashboardCustomerSelect,
+      where: { workspaceId },
     }),
     prisma.workItem.findMany({
       select: dashboardWorkItemSelect,
+      where: { workspaceId },
     }),
     prisma.inventoryItem.findMany({
       select: dashboardInventorySelect,
+      where: { workspaceId },
     }),
     prisma.issue.findMany({
       select: dashboardIssueSelect,
+      where: { workspaceId },
     }),
   ]);
 

@@ -14,6 +14,7 @@ import {
   customerListQuerySchema,
 } from "@/features/customers/customer-validation";
 import { apiError, apiInternalError, apiOk, apiValidationError } from "@/lib/api/responses";
+import { getDemoSession } from "@/lib/auth/demo-session";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -31,6 +32,8 @@ const listFiltersFromRequest = (request: NextRequest) => ({
 });
 
 export async function GET(request: NextRequest) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const filters = validateInput(
     customerListQuerySchema,
     listFiltersFromRequest(request),
@@ -46,7 +49,7 @@ export async function GET(request: NextRequest) {
       orderBy: customerListOrderBy,
       select: customerSelect,
       take: 100,
-      where: buildCustomerWhereInput(filters.data),
+      where: { AND: [{ workspaceId: session.workspaceId }, buildCustomerWhereInput(filters.data)] },
     });
 
     return apiOk({
@@ -69,6 +72,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const validated = await validateJsonBody(request, customerCreateSchema);
 
   if (!validated.success) {
@@ -86,7 +91,10 @@ export async function POST(request: Request) {
     }
 
     const customer = await prisma.customer.create({
-      data: createCustomerData(validated.data),
+      data: {
+        ...createCustomerData(validated.data),
+        workspace: { connect: { id: session.workspaceId } },
+      },
       select: customerSelect,
     });
 

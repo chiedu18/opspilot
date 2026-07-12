@@ -19,6 +19,7 @@ import {
   apiOk,
   apiValidationError,
 } from "@/lib/api/responses";
+import { getDemoSession } from "@/lib/auth/demo-session";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -44,6 +45,8 @@ const listFiltersFromRequest = (request: NextRequest) => ({
 });
 
 export async function GET(request: NextRequest) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const filters = validateInput(
     issueListQuerySchema,
     listFiltersFromRequest(request),
@@ -59,7 +62,7 @@ export async function GET(request: NextRequest) {
       orderBy: issueListOrderBy,
       select: issueSelect,
       take: 200,
-      where: buildIssueWhereInput(filters.data),
+      where: { AND: [{ workspaceId: session.workspaceId }, buildIssueWhereInput(filters.data)] },
     });
 
     return apiOk({
@@ -82,6 +85,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const validated = await validateJsonBody(request, issueCreateSchema);
 
   if (!validated.success) {
@@ -93,6 +98,7 @@ export async function POST(request: Request) {
     const relationshipError = await validateIssueRelationships(
       prisma,
       validated.data,
+      { workspaceId: session.workspaceId },
     );
 
     if (relationshipError) {
@@ -100,7 +106,10 @@ export async function POST(request: Request) {
     }
 
     const issue = await prisma.issue.create({
-      data: createIssueData(validated.data),
+      data: {
+        ...createIssueData(validated.data),
+        workspace: { connect: { id: session.workspaceId } },
+      },
       select: issueSelect,
     });
 

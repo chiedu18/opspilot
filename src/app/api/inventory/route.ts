@@ -20,6 +20,7 @@ import {
   apiOk,
   apiValidationError,
 } from "@/lib/api/responses";
+import { getDemoSession } from "@/lib/auth/demo-session";
 import {
   getPrismaClient,
   isDatabaseConfigurationError,
@@ -44,6 +45,8 @@ const listFiltersFromRequest = (request: NextRequest) => ({
 });
 
 export async function GET(request: NextRequest) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const filters = validateInput(
     inventoryListQuerySchema,
     listFiltersFromRequest(request),
@@ -59,7 +62,7 @@ export async function GET(request: NextRequest) {
       orderBy: inventoryListOrderBy,
       select: inventorySelect,
       take: 200,
-      where: buildInventoryWhereInput(filters.data),
+      where: { AND: [{ workspaceId: session.workspaceId }, buildInventoryWhereInput(filters.data)] },
     });
 
     const filteredItems = filterInventoryByLowStockState(
@@ -87,6 +90,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
+  const session = await getDemoSession();
+  if (!session) return apiError("UNAUTHORIZED", "Sign in to access your demo workspace.", { status: 401 });
   const validated = await validateJsonBody(request, inventoryCreateSchema);
 
   if (!validated.success) {
@@ -98,6 +103,7 @@ export async function POST(request: Request) {
     const relationshipError = await validateInventoryRelationships(
       prisma,
       validated.data,
+      { workspaceId: session.workspaceId },
     );
 
     if (relationshipError) {
@@ -105,7 +111,10 @@ export async function POST(request: Request) {
     }
 
     const inventoryItem = await prisma.inventoryItem.create({
-      data: createInventoryData(validated.data),
+      data: {
+        ...createInventoryData(validated.data),
+        workspace: { connect: { id: session.workspaceId } },
+      },
       select: inventorySelect,
     });
 

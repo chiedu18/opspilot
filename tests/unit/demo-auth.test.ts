@@ -3,8 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEMO_LOGIN_EMAIL,
   DEMO_LOGIN_PASSWORD,
-  DEMO_SESSION_COOKIE_VALUE,
-  getDemoSessionFromCookieValue,
+  DEMO_SESSION_MAX_AGE_SECONDS,
   validateDemoCredentials,
 } from "../../src/lib/auth/demo-account";
 
@@ -36,16 +35,7 @@ describe("demo auth helpers", () => {
     ).toBe(false);
   });
 
-  it("creates a demo session only for the expected cookie value", () => {
-    expect(getDemoSessionFromCookieValue(DEMO_SESSION_COOKIE_VALUE)).toEqual({
-      user: {
-        email: DEMO_LOGIN_EMAIL,
-        id: "team-olivia-chen",
-        name: "Olivia Chen",
-        role: "Operations Manager",
-      },
-    });
-    expect(getDemoSessionFromCookieValue("invalid")).toBeNull();
-    expect(getDemoSessionFromCookieValue(undefined)).toBeNull();
+  it("uses a 24-hour lifetime for isolated demo sessions", () => {
+    expect(DEMO_SESSION_MAX_AGE_SECONDS).toBe(60 * 60 * 24);
   });
 });

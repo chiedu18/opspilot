@@ -27,6 +27,7 @@ type InventoryRelationshipInput =
 
 type ValidateInventoryRelationshipsOptions = {
   existing?: InventoryRelationshipSnapshot;
+  workspaceId?: string;
 };
 
 const readEffectiveRelation = (
@@ -40,6 +41,7 @@ export const validateInventoryRelationships = async (
   options: ValidateInventoryRelationshipsOptions = {},
 ) => {
   const existing = options.existing;
+  const { workspaceId } = options;
   const effectiveStatus = input.status ?? existing?.status;
   const effectiveCustomerId = readEffectiveRelation(
     input.customerId,
@@ -72,7 +74,7 @@ export const validateInventoryRelationships = async (
   if (
     input.customerId &&
     input.customerId !== existing?.customerId &&
-    !(await isAvailableInventoryCustomer(prisma, input.customerId))
+    !(await isAvailableInventoryCustomer(prisma, input.customerId, workspaceId ?? ""))
   ) {
     return apiInvalidInventoryCustomer();
   }
@@ -81,6 +83,7 @@ export const validateInventoryRelationships = async (
     const workItem = await findAvailableInventoryWorkItem(
       prisma,
       input.workItemId,
+      workspaceId ?? "",
     );
 
     if (!workItem) {
@@ -89,12 +92,12 @@ export const validateInventoryRelationships = async (
   }
 
   if (effectiveWorkItemId && effectiveCustomerId) {
-    const workItem = await prisma.workItem.findUnique({
+    const workItem = await prisma.workItem.findFirst({
       select: {
         customerId: true,
         id: true,
       },
-      where: { id: effectiveWorkItemId },
+      where: { id: effectiveWorkItemId, ...(workspaceId ? { workspaceId } : {}) },
     });
 
     if (!workItem) {
@@ -109,7 +112,7 @@ export const validateInventoryRelationships = async (
   if (
     input.referenceCode &&
     input.referenceCode !== existing?.referenceCode &&
-    (await findInventoryByReferenceCode(prisma, input.referenceCode, existing?.id))
+    (await findInventoryByReferenceCode(prisma, input.referenceCode, workspaceId ?? "", existing?.id))
   ) {
     return apiDuplicateInventoryReferenceCode();
   }

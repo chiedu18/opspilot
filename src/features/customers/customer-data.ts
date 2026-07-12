@@ -131,7 +131,7 @@ export const createCustomerData = ({
   ...input
 }: CustomerCreateInput): Omit<Prisma.CustomerCreateInput, "workspace"> => ({
   ...input,
-  ...ownerRelation(ownerId),
+  ...(ownerId ? { owner: { connect: { id: ownerId } } } : {}),
 });
 
 export const updateCustomerData = ({

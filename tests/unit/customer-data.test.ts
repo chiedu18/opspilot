@@ -7,6 +7,7 @@ import {
 } from "../../src/generated/prisma/client";
 import {
   buildCustomerWhereInput,
+  createCustomerData,
   toCustomerApi,
 } from "../../src/features/customers/customer-data";
 
@@ -30,6 +31,17 @@ describe("customer data helpers", () => {
     expect(where).toEqual({
       status: CustomerStatus.ARCHIVED,
     });
+  });
+
+  it("creates an unassigned customer without an invalid disconnect relation", () => {
+    const data = createCustomerData({
+      contactName: "Sandbox QA",
+      name: "Isolation check",
+      ownerId: null,
+      status: CustomerStatus.PROSPECT,
+    });
+
+    expect(data).not.toHaveProperty("owner");
   });
 
   it("builds search and owner filters", () => {

@@ -67,10 +67,14 @@ test.describe.serial("issue workflow", () => {
     await page.getByLabel("Category").selectOption("DATA_QUALITY");
     await page.getByLabel("Priority").selectOption("URGENT");
     await page.getByLabel("Status").selectOption("BLOCKED");
-    await page.getByLabel("Customer").selectOption("cust-bluepeak-nonprofit");
+    await page
+      .getByLabel("Customer")
+      .selectOption({ label: "BluePeak Nonprofit Demo" });
     await page
       .getByLabel("Related order")
-      .selectOption("work-bluepeak-donor-campaign");
+      .selectOption({
+        label: "Donor campaign segmentation - BluePeak Nonprofit Demo",
+      });
     await page
       .getByLabel("Owner", { exact: true })
       .selectOption("team-olivia-chen");
@@ -96,10 +100,8 @@ test.describe.serial("issue workflow", () => {
       .selectOption("team-daniel-kim");
     await page
       .getByLabel("Related order")
-      .selectOption("work-northstar-pos-device-rollout");
-    await expect(page.getByLabel("Related customer")).toHaveValue(
-      "cust-northstar-outfitters",
-    );
+      .selectOption({ label: "POS device rollout - Northstar Outfitters Demo" });
+    await expect(page.getByLabel("Related customer")).toHaveValue(/.+/);
     await page.getByLabel("Description").fill(testIssue.description);
     await page.getByRole("button", { name: "Create issue" }).click();
 

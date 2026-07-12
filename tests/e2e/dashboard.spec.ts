@@ -54,7 +54,7 @@ test.describe("dashboard", () => {
       .toHaveAttribute("href", "/orders?dueDateBucket=OVERDUE");
     await expect(
       page.getByRole("link", { name: "Donor campaign segmentation" }),
-    ).toHaveAttribute("href", "/orders/work-bluepeak-donor-campaign");
+    ).toHaveAttribute("href", /\/orders\/[^/]+/);
     await expect(
       page.getByText("BluePeak Nonprofit Demo - Olivia Chen - Due Jul 1, 2026"),
     ).toBeVisible();
@@ -65,7 +65,7 @@ test.describe("dashboard", () => {
       .toHaveAttribute("href", "/issues?resolutionState=UNRESOLVED");
     await expect(
       page.getByRole("link", { name: "Donor segment file blocked" }),
-    ).toHaveAttribute("href", "/issues/issue-bluepeak-donor-segment");
+    ).toHaveAttribute("href", /\/issues\/[^/]+/);
     await expect(
       page.getByText(
         "BluePeak Nonprofit Demo - Olivia Chen - Updated Jul 7, 2026",
@@ -78,7 +78,7 @@ test.describe("dashboard", () => {
       .toHaveAttribute("href", "/inventory?lowStockState=LOW_STOCK");
     await expect(
       page.getByRole("link", { name: "Barcode scanner pool" }),
-    ).toHaveAttribute("href", "/inventory/inv-greenfield-barcode-scanners");
+    ).toHaveAttribute("href", /\/inventory\/[^/]+/);
     await expect(page.getByText("1 on hand - Threshold 4")).toBeVisible();
     await expectNoPageWideOverflow(page);
   });

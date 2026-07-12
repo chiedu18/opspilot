@@ -82,7 +82,9 @@ test.describe.serial("order workflow", () => {
     await page.getByLabel("Priority").selectOption("HIGH");
     await page.getByLabel("Due date").fill(testOrder.dueDate);
     await page.getByLabel("Estimated value").fill(testOrder.estimatedValue);
-    await page.getByLabel("Customer").selectOption("cust-northstar-outfitters");
+    await page
+      .getByLabel("Customer")
+      .selectOption({ label: "Northstar Outfitters Demo" });
     await page.getByLabel("Owner").selectOption("team-marcus-reed");
     await page.getByLabel("Notes").fill(testOrder.notes);
     await page.getByRole("button", { name: "Create order" }).click();

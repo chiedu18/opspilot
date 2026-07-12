@@ -63,10 +63,12 @@ test.describe.serial("inventory workflow", () => {
     await expect(page).toHaveURL(/\/inventory$/);
     await page.getByLabel("Category").selectOption("EQUIPMENT");
     await page.getByLabel("Status").selectOption("LOW_STOCK");
-    await page.getByLabel("Customer").selectOption("cust-greenfield-market");
+    await page
+      .getByLabel("Customer")
+      .selectOption({ label: "Greenfield Market Demo" });
     await page
       .getByLabel("Related order")
-      .selectOption("work-greenfield-sku-cleanup");
+      .selectOption({ label: "SKU cleanup and barcode check - Greenfield Market Demo" });
     await page.getByLabel("Owner").selectOption("team-daniel-kim");
     await page.getByLabel("Low stock").selectOption("LOW_STOCK");
     await page.getByRole("button", { name: "Apply" }).click();
@@ -98,7 +100,7 @@ test.describe.serial("inventory workflow", () => {
     await page.getByLabel("Owner").selectOption("team-marcus-reed");
     await page
       .getByLabel("Related order")
-      .selectOption("work-northstar-pos-device-rollout");
+      .selectOption({ label: "POS device rollout - Northstar Outfitters Demo" });
     await page.getByLabel("Notes").fill(testInventory.notes);
     await page.getByRole("button", { name: "Create inventory item" }).click();
 

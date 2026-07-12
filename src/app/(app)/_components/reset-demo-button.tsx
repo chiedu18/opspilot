@@ -1,10 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function ResetDemoButton() {
-  const router = useRouter();
   const [isPending, setIsPending] = useState(false);
 
   const resetWorkspace = async () => {
@@ -13,15 +11,18 @@ export function ResetDemoButton() {
     }
 
     setIsPending(true);
-    const response = await fetch("/api/session/reset", { method: "POST" });
 
-    if (response.ok) {
-      router.push("/dashboard?reset=1");
-      router.refresh();
-      return;
+    try {
+      const response = await fetch("/api/session/reset", { method: "POST" });
+
+      if (!response.ok) {
+        return;
+      }
+
+      window.location.assign("/dashboard?reset=1");
+    } finally {
+      setIsPending(false);
     }
-
-    setIsPending(false);
   };
 
   return (
